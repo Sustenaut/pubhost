@@ -1,0 +1,23 @@
+{
+  "name": "pubhost",
+  "package": "pkg.pubhost",
+  "tag": "PKG-PUBHST-11-2026",
+  "corpus": "corpus",
+  "manifest": {
+    "kind": "pyproject",
+    "path": "pyproject.toml"
+  },
+  "code": [
+    "src/",
+    "pyproject.toml",
+    "terraform/",
+    "actions/",
+    ".github/workflows/terraform.yml"
+  ],
+  "command": {
+    "name": "pubhost",
+    "check": "pubhost --version"
+  },
+  "install": "pip install https://github.com/Sustenaut/pubhost/releases/download/{tag}/pubhost-{version}-py3-none-any.whl, beside the pubkit it names",
+  "key": "pub:sha2-256:c6kujsxhzx4pg7qklemhmfozkcfehbb5jo7mwewks3hh2dldvyyq"
+}
