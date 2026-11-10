@@ -9,7 +9,6 @@
     "checks": [
       "ci / passed",
       "release / release",
-      "SonarCloud Code Analysis",
       "hosting / passed",
       "integrations / scan"
     ],
