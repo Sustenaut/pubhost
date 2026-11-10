@@ -1,0 +1,125 @@
+{
+  "claims": {
+    "identity": {
+      "class": "archival",
+      "content": "pubhost 0.1.0 is released as v0.1.0 from commit 9b338ff3e57869ca98e0bfaebb54c317e7357869.",
+      "data": {
+        "columns": [
+          {
+            "name": "name"
+          },
+          {
+            "name": "version"
+          },
+          {
+            "name": "check"
+          },
+          {
+            "name": "expect"
+          },
+          {
+            "name": "tag"
+          },
+          {
+            "name": "commit"
+          }
+        ],
+        "rows": [
+          [
+            "pubhost",
+            "0.1.0",
+            "pubhost --version",
+            "pubhost 0.1.0",
+            "v0.1.0",
+            "9b338ff3e57869ca98e0bfaebb54c317e7357869"
+          ]
+        ]
+      },
+      "scope": "the published release v0.1.0 of pubhost",
+      "sources": [
+        {
+          "ref": "pubhost",
+          "revision": "9b338ff3e57869ca98e0bfaebb54c317e7357869"
+        }
+      ]
+    },
+    "release": {
+      "class": "archival",
+      "content": "pubhost 0.1.0 was released on 2026-11-10 from commit 9b338ff3e57869ca98e0bfaebb54c317e7357869 with these changes.",
+      "data": {
+        "columns": [
+          {
+            "name": "category"
+          },
+          {
+            "name": "change"
+          }
+        ],
+        "rows": [
+          [
+            "added",
+            "pubhost: a repository's hosting, moved from pubkit 0.34.0: the Terraform modules (terraform/), the terraform.yml apply workflow, the deploy-static and docker-build actions, `pubhost dns check` and `pubhost site check`"
+          ],
+          [
+            "changed",
+            "terraform.yml takes actions/checkout 7.0.1, hashicorp/setup-terraform 4.0.1 and astral-sh/setup-uv 10.3.3, by commit; the first two run on Node 24"
+          ]
+        ]
+      },
+      "depends": [
+        "#identity"
+      ],
+      "scope": "the published release v0.1.0 of pubhost",
+      "sources": [
+        {
+          "ref": "pubhost",
+          "revision": "9b338ff3e57869ca98e0bfaebb54c317e7357869"
+        }
+      ]
+    },
+    "summary": {
+      "class": "archival",
+      "content": "pubhost 0.1.0 in brief: pubhost's first release: the hosting half of pubkit, moved out with its behaviour. pubkit keeps the hosting block's shape, which `pubkit sync` checks, and pubhost reads it through pubkit.",
+      "depends": [
+        "#release"
+      ],
+      "scope": "the published release v0.1.0 of pubhost",
+      "sources": [
+        {
+          "ref": "pubhost",
+          "revision": "9b338ff3e57869ca98e0bfaebb54c317e7357869"
+        }
+      ]
+    }
+  },
+  "created": "2026-11-10T00:00:00Z",
+  "sections": [
+    {
+      "heading": "Summary",
+      "items": [
+        {
+          "ref": "#summary"
+        }
+      ]
+    },
+    {
+      "heading": "Identity",
+      "items": [
+        {
+          "ref": "#identity"
+        }
+      ]
+    },
+    {
+      "heading": "Release",
+      "items": [
+        {
+          "ref": "#release"
+        }
+      ]
+    }
+  ],
+  "slug": "pkg.pubhost",
+  "tag": "PKG-PUBHST-11-2026",
+  "title": "pubhost"
+}

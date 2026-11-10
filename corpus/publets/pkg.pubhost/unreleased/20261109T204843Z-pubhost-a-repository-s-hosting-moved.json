@@ -1,4 +1,0 @@
-{
-  "category": "added",
-  "change": "pubhost: a repository's hosting, moved from pubkit 0.34.0: the Terraform modules (terraform/), the terraform.yml apply workflow, the deploy-static and docker-build actions, `pubhost dns check` and `pubhost site check`"
-}
