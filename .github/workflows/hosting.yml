@@ -93,6 +93,8 @@ jobs:
           [ -n "$first" ] && [ "$first" = "$second" ]
 
   passed:
+    # The required check's name, as pubkit.json's protect.checks lists it.
+    name: hosting / passed
     if: ${{ !cancelled() }}
     needs: [terraform, deploy-static, docker-build-action]
     runs-on: ubuntu-latest
