@@ -1,0 +1,93 @@
+{
+  "kind": "service",
+  "hosting": {
+    "ttl": { "email": 1800 },
+    "providers": {
+      "hetzner": {
+        "type": "hetzner",
+        "dns": {
+          "external_nameservers": ["helium.ns.hetzner.de.", "hydrogen.ns.hetzner.com.", "oxygen.ns.hetzner.com."]
+        }
+      },
+      "cloudflare": {
+        "type": "cloudflare",
+        "account_id": "fedcba9876543210fedcba9876543210"
+      },
+      "desec": {
+        "type": "desec",
+        "dns": { "external_nameservers": ["ns1.desec.io.", "ns2.desec.org."] }
+      },
+      "gcp": {
+        "type": "google-cloud",
+        "project": "example-project",
+        "region": "europe-north1",
+        "cloud_run": { "domain_target": "ghs.googlehosted.com." }
+      },
+      "mailbox": {
+        "type": "mailbox-org",
+        "mx": ["10 mxext1.mailbox.org.", "10 mxext2.mailbox.org.", "10 mxext3.mailbox.org.", "10 mxext4.mailbox.org."],
+        "spf": "include:mailbox.org",
+        "dkim": {
+          "mbo0001": "mbo0001._domainkey.mailbox.org.",
+          "mbo0002": "mbo0002._domainkey.mailbox.org.",
+          "mbo0003": "mbo0003._domainkey.mailbox.org.",
+          "mbo0004": "mbo0004._domainkey.mailbox.org."
+        }
+      }
+    },
+    "zones": {
+      "example.eu": {
+        "dns": ["hetzner", "cloudflare"],
+        "email": {
+          "provider": "mailbox",
+          "verification": {
+            "f67e29eb00a65673481c0f9731bc90e0c6f94fd3": "0123456789abcdef0123456789abcdef01234567"
+          },
+          "dmarc": { "policy": "none", "rua": "alerts@example.eu" }
+        },
+        "apex_txt": ["google-site-verification=abc"],
+        "sites": {
+          "@": { "provider": "hetzner", "kind": "server", "server": "web" },
+          "blog": {
+            "provider": "cloudflare",
+            "kind": "pages",
+            "project": "example-blog",
+            "subdomain": "example-blog-2ab.pages.dev",
+            "standby": "web"
+          },
+          "pub": { "provider": "gcp", "kind": "cloud-run", "service": "pub-site" }
+        }
+      },
+      "example.org": {
+        "dns": ["hetzner"],
+        "ttl": { "sites": 60 },
+        "sites": {
+          "auth": { "provider": "hetzner", "kind": "server", "server": "small" },
+          "docs": {
+            "provider": "cloudflare",
+            "kind": "pages",
+            "project": "example-docs",
+            "served_by": "server",
+            "standby": "small",
+            "ttl": 120
+          }
+        }
+      },
+      "example.net": {
+        "dns": ["desec", "cloudflare"],
+        "dnssec": {
+          "keys": {
+            "desec": ["257 3 13 WegpvoQyBO3Sfn1qJpjSDh+zrVm6LG9K9taCb5fKRhug6prfr8faHC2UFJyLj/Wcl4p5z9Mi7RjGaTA6IAFcvA=="],
+            "cloudflare": [
+              "257 3 13 o+F66TJNYiC6JLf43QcAJWCMTxsJ9xI1V92srQEekD4AFTWJj4iCjQm8vEiRTSORVGTyDcL50q2AHy4ehiVvBA==",
+              "256 3 13 vowd8jwrlK9ik9qGtarbO6BMxGSGInLKQzfc0xUHLpyw7LPKQM4XmUTnqA0RjvtUnDCAwv7aJyIbY0FQ2qMAiQ=="
+            ]
+          }
+        },
+        "sites": {
+          "@": { "provider": "hetzner", "kind": "server", "server": "small" }
+        }
+      }
+    }
+  }
+}

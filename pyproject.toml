@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pubhost"
+version = "0.1.0"
+description = "A repository's hosting: Terraform modules for its zones and sites, the live DNS check, the apply workflow, and the image-build and static-deploy actions."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "David Schryer", email = "schryer@gmail.com" }]
+# pubkit, as a library: the hosting block's shape, which `pubkit sync` checks
+# and `pubhost dns check` reads (README, "What pubhost takes from pubkit").
+# The floor is the oldest pubkit pubhost works with; tests/requirements.lock
+# pins the one it is tested with.
+dependencies = ["pubkit>=0.34.0"]
+
+[project.urls]
+Repository = "https://github.com/Sustenaut/pubhost"
+
+[project.scripts]
+pubhost = "pubhost.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# `make functional` measures the suite, the `pubhost` processes it starts
+# included, into coverage/coverage.xml for SonarQube Cloud.
+[tool.coverage.run]
+source = ["pubhost"]
+patch = ["subprocess", "execv"]
+parallel = true
+
+[tool.coverage.xml]
+output = "coverage/coverage.xml"

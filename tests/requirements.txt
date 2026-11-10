@@ -1,0 +1,8 @@
+# The functional suite's direct dependencies. Exact pins only; the resolved
+# set with hashes lives in requirements.lock. Regenerate it with `pubkit lock`.
+# requirements-pubkit.txt pins pubkit, which pubhost imports at run time
+# (pubkit.hosting) as well as the suite's plugin: the lock's pubkit is the one
+# pubhost is tested with.
+-r requirements-pubkit.txt
+# `make functional` measures the suite, the `pubhost` processes it starts included.
+coverage==7.16.2

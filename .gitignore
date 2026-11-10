@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.hypothesis/
+/build/
+/dist/
+*.egg-info/
+/coverage/
+/corpus/.publet/
+
+# Local secrets, such as the Bitwarden token ./with-secrets reads: never committed.
+.env
+
+# Terraform's working files: the modules keep no lock file (CI keys its
+# provider cache on their .tf files).
+.terraform/
+.terraform.lock.hcl

@@ -1,0 +1,153 @@
+{
+  "uses": [
+    {
+      "plugin": "bitwarden.secrets",
+      "paths": [
+        ".github/workflows/terraform.yml"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "cloudflare.dns",
+      "paths": [
+        "actions/deploy-static/action.yml"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "cloudflare.pages",
+      "paths": [
+        "actions/deploy-static/",
+        "terraform/testdata/pubkit.json"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "desec.dns",
+      "paths": [
+        "terraform/dns-zone/variables.tf",
+        "terraform/testdata/pubkit.json"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "github.actions-oidc",
+      "paths": [
+        ".github/workflows/terraform.yml"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "github.app-token",
+      "paths": [
+        ".github/workflows/main.yml",
+        ".github/workflows/pr.yml"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "github.repo-ops",
+      "paths": [
+        ".github/workflows/terraform.yml",
+        ".github/workflows/wheel.yml"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "google.cloud",
+      "paths": [
+        ".github/workflows/terraform.yml",
+        "terraform/cloud-run-access/",
+        "terraform/cloud-run-service/",
+        "terraform/cloud-run-sites/"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "mailbox.smtp",
+      "paths": [
+        "terraform/hosting/variables.tf",
+        "terraform/testdata/pubkit.json"
+      ],
+      "mode": "required"
+    },
+    {
+      "plugin": "sonarcloud.scan",
+      "paths": [
+        ".github/workflows/main.yml",
+        ".github/workflows/pr.yml"
+      ],
+      "mode": "required"
+    }
+  ],
+  "terraform": [
+    {
+      "dir": "terraform/backup-bucket",
+      "plugins": [
+        "terraform.google"
+      ],
+      "runs": [],
+      "mode": "required"
+    },
+    {
+      "dir": "terraform/cloud-run-access",
+      "plugins": [
+        "terraform.google"
+      ],
+      "runs": [],
+      "mode": "required"
+    },
+    {
+      "dir": "terraform/cloud-run-service",
+      "plugins": [
+        "terraform.google"
+      ],
+      "runs": [],
+      "mode": "required"
+    },
+    {
+      "dir": "terraform/cloud-run-sites",
+      "plugins": [
+        "terraform.google"
+      ],
+      "runs": [],
+      "mode": "required"
+    },
+    {
+      "dir": "terraform/desec-zones",
+      "plugins": [
+        "terraform.desec"
+      ],
+      "runs": [],
+      "mode": "required"
+    },
+    {
+      "dir": "terraform/dns-zone",
+      "plugins": [
+        "terraform.cloudflare",
+        "terraform.hetzner"
+      ],
+      "runs": [],
+      "mode": "required"
+    },
+    {
+      "dir": "terraform/hosting",
+      "plugins": [
+        "terraform.cloudflare",
+        "terraform.hetzner"
+      ],
+      "runs": [],
+      "mode": "required"
+    }
+  ],
+  "exclude": [
+    {
+      "path": "tests/**",
+      "reason": "Fakes of these services"
+    },
+    {
+      "path": "corpus/**",
+      "reason": "Release records, not code"
+    }
+  ]
+}
