@@ -7,4 +7,5 @@ pkg:githubactions/Sustenaut/pubkit/.github/workflows/job-python-functional.yml
 pkg:githubactions/Sustenaut/pubkit/.github/workflows/job-review.yml
 pkg:githubactions/Sustenaut/pubkit/.github/workflows/job-sonar.yml
 pkg:githubactions/Sustenaut/pubkit/.github/workflows/job-tested.yml
+pkg:githubactions/Sustenaut/pubkit/actions/terraform-init
 pkg:githubactions/Sustenaut/pubrel/.github/workflows/release.yml

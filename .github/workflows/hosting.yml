@@ -39,14 +39,11 @@ jobs:
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-providers-${{ matrix.module }}-${{ hashFiles(format('terraform/{0}/**/*.tf', matrix.module)) }}
-      - run: |
-          for attempt in 1 2 3; do
-            terraform -chdir="terraform/$MODULE" init -backend=false -input=false && exit 0
-            echo "::warning::terraform init failed (attempt $attempt of 3)"
-            [ "$attempt" = 3 ] || sleep 10
-          done
-          exit 1
-        env: { MODULE: '${{ matrix.module }}' }
+      - uses: Sustenaut/pubkit/actions/terraform-init@afabaf91f5285f163967383edaadaee927e0c30a # v0.35.1
+        with:
+          dir: terraform/${{ matrix.module }}
+          args: -backend=false -input=false
+          pause: '10'
       - run: terraform -chdir="terraform/$MODULE" validate
         env: { MODULE: '${{ matrix.module }}' }
       - run: terraform -chdir="terraform/$MODULE" test

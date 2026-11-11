@@ -1,0 +1,4 @@
+{
+  "category": "internal",
+  "change": "hosting.yml's terraform init runs through pubkit's actions/terraform-init (pubkit 0.35.1) in place of its own retry loop, with the same three tries 10 s apart; pubhost moves to pubkit 0.35.1"
+}
