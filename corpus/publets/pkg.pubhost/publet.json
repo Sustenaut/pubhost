@@ -2,7 +2,7 @@
   "claims": {
     "identity": {
       "class": "archival",
-      "content": "pubhost 0.1.0 is released as v0.1.0 from commit 9b338ff3e57869ca98e0bfaebb54c317e7357869.",
+      "content": "pubhost 0.1.1 is released as v0.1.1 from commit 6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd.",
       "data": {
         "columns": [
           {
@@ -27,25 +27,25 @@
         "rows": [
           [
             "pubhost",
-            "0.1.0",
+            "0.1.1",
             "pubhost --version",
-            "pubhost 0.1.0",
-            "v0.1.0",
-            "9b338ff3e57869ca98e0bfaebb54c317e7357869"
+            "pubhost 0.1.1",
+            "v0.1.1",
+            "6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd"
           ]
         ]
       },
-      "scope": "the published release v0.1.0 of pubhost",
+      "scope": "the published release v0.1.1 of pubhost",
       "sources": [
         {
           "ref": "pubhost",
-          "revision": "9b338ff3e57869ca98e0bfaebb54c317e7357869"
+          "revision": "6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd"
         }
       ]
     },
     "release": {
       "class": "archival",
-      "content": "pubhost 0.1.0 was released on 2026-11-10 from commit 9b338ff3e57869ca98e0bfaebb54c317e7357869 with these changes.",
+      "content": "pubhost 0.1.1 was released on 2026-11-12 from commit 6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd with these changes.",
       "data": {
         "columns": [
           {
@@ -57,51 +57,33 @@
         ],
         "rows": [
           [
-            "added",
-            "pubhost: a repository's hosting, moved from pubkit 0.34.0: the Terraform modules (terraform/), the terraform.yml apply workflow, the deploy-static and docker-build actions, `pubhost dns check` and `pubhost site check`"
+            "internal",
+            "hosting.yml's terraform init runs through pubkit's actions/terraform-init (pubkit 0.35.1) in place of its own retry loop, with the same three tries 10 s apart; pubhost moves to pubkit 0.35.1"
           ],
           [
-            "changed",
-            "terraform.yml takes actions/checkout 7.0.1, hashicorp/setup-terraform 4.0.1 and astral-sh/setup-uv 10.3.3, by commit; the first two run on Node 24"
+            "fixed",
+            "dns-zone works with cloudflare provider 5.29, which dropped foundation_dns from cloudflare_zone_dns_settings; the modules now require ~> 5.29"
+          ],
+          [
+            "added",
+            "terraform.yml takes a runs-on input, the runner label its plan and apply jobs run on (ubuntu-latest by default), so a stack with self-hosted runners applies on them"
           ]
         ]
       },
       "depends": [
         "#identity"
       ],
-      "scope": "the published release v0.1.0 of pubhost",
+      "scope": "the published release v0.1.1 of pubhost",
       "sources": [
         {
           "ref": "pubhost",
-          "revision": "9b338ff3e57869ca98e0bfaebb54c317e7357869"
-        }
-      ]
-    },
-    "summary": {
-      "class": "archival",
-      "content": "pubhost 0.1.0 in brief: pubhost's first release: the hosting half of pubkit, moved out with its behaviour. pubkit keeps the hosting block's shape, which `pubkit sync` checks, and pubhost reads it through pubkit.",
-      "depends": [
-        "#release"
-      ],
-      "scope": "the published release v0.1.0 of pubhost",
-      "sources": [
-        {
-          "ref": "pubhost",
-          "revision": "9b338ff3e57869ca98e0bfaebb54c317e7357869"
+          "revision": "6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd"
         }
       ]
     }
   },
-  "created": "2026-11-10T00:00:00Z",
+  "created": "2026-11-12T00:00:00Z",
   "sections": [
-    {
-      "heading": "Summary",
-      "items": [
-        {
-          "ref": "#summary"
-        }
-      ]
-    },
     {
       "heading": "Identity",
       "items": [

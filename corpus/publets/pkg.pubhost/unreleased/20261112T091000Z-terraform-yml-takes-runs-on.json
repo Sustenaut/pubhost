@@ -1,4 +1,0 @@
-{
-  "category": "added",
-  "change": "terraform.yml takes a runs-on input, the runner label its plan and apply jobs run on (ubuntu-latest by default), so a stack with self-hosted runners applies on them"
-}
