@@ -1,0 +1,4 @@
+{
+  "category": "fixed",
+  "change": "dns-zone works with cloudflare provider 5.29, which dropped foundation_dns from cloudflare_zone_dns_settings; the modules now require ~> 5.29"
+}

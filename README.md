@@ -263,7 +263,7 @@ registrar) and `sites` (by full name: provider, kind, address, and a Pages
 site's project and pages.dev name). `records` takes other rrsets, by zone,
 for anything the block does not describe.
 
-The modules need Terraform 1.11 or newer, `hcloud` 1.69, `cloudflare` 5.28,
+The modules need Terraform 1.11 or newer, `hcloud` 1.69, `cloudflare` 5.29,
 `Valodim/desec` 0.6 and `google` 7. `terraform/hosting` needs no Cloudflare
 token or provider block when no zone or site is at Cloudflare. The Google
 and deSEC providers will not start without credentials, even with nothing

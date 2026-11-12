@@ -131,7 +131,7 @@ resource "cloudflare_zone_dns_settings" "zone" {
   # The provider takes these as optional, not computed: Cloudflare reports them,
   # this sets none, and without this every plan would show them going to null.
   lifecycle {
-    ignore_changes = [flatten_all_cnames, foundation_dns, ns_ttl, secondary_overrides, zone_mode]
+    ignore_changes = [flatten_all_cnames, ns_ttl, secondary_overrides, zone_mode]
   }
 }
 
