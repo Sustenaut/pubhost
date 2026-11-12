@@ -467,6 +467,7 @@ jobs:
     secrets: inherit
 ```
 
+- `runs-on` (optional) names the runners the jobs run on, such as a self-hosted runner scale set; `ubuntu-latest` by default. The runner needs what GitHub's does here: git, curl, unzip and Node for the actions.
 - Nothing runs until the repository variable `TERRAFORM_CI` is `on`, nor
   for any ref but the default branch. A first job, outside any environment,
   checks both.
