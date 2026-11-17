@@ -20,7 +20,7 @@
 # not public.
 #
 # check-only: 'true' runs that check and nothing else: no deploy, so no
-# secret or target is needed. The CI `pubkit sync` writes runs it this way
+# secret or target is needed. The CI `pubrules sync` writes runs it this way
 # on every pull request (ci / site), so a site that would fail to deploy
 # fails the pull request instead.
 name: deploy-static

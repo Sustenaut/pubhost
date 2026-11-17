@@ -2,7 +2,7 @@
 # deSEC beside Hetzner and Cloudflare while a zone moves. deSEC's records
 # are terraform/desec-zones'; here it is only its nameservers. The
 # providers are mocked, with made-up nameservers and a made-up DS; the keys
-# and deSEC's nameservers come from testdata/pubkit.json's example.net.
+# and deSEC's nameservers come from testdata/pubrules.json's example.net.
 
 mock_provider "hcloud" {
   mock_data "hcloud_zone" {
@@ -29,9 +29,9 @@ mock_provider "cloudflare" {
 
 variables {
   zone       = "example.net"
-  desec      = jsondecode(file("../testdata/pubkit.json")).hosting.providers.desec
-  cloudflare = jsondecode(file("../testdata/pubkit.json")).hosting.providers.cloudflare
-  dnssec     = jsondecode(file("../testdata/pubkit.json")).hosting.zones["example.net"].dnssec
+  desec      = jsondecode(file("../testdata/pubrules.json")).hosting.providers.desec
+  cloudflare = jsondecode(file("../testdata/pubrules.json")).hosting.providers.cloudflare
+  dnssec     = jsondecode(file("../testdata/pubrules.json")).hosting.zones["example.net"].dnssec
   records = {
     web = { name = "@", type = "A", ttl = 300, values = ["192.0.2.1"] }
   }

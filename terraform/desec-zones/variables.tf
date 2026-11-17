@@ -1,5 +1,5 @@
 variable "config" {
-  description = "The hosting block of the repository's pubkit.json, as jsondecode(file(\"pubkit.json\")).hosting. This module reads its desec providers and the zones they serve, with their dnssec keys; terraform/hosting does the rest."
+  description = "The hosting block of the repository's pubrules.json, as jsondecode(file(\"pubrules.json\")).hosting. This module reads its desec providers and the zones they serve, with their dnssec keys; terraform/hosting does the rest."
   type = object({
     providers = map(object({
       type = string

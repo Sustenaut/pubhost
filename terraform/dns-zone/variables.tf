@@ -33,7 +33,7 @@ variable "records" {
 }
 
 variable "hetzner" {
-  description = "Hetzner serves the zone, which must already exist there (created in the Hetzner Console), as a hetzner provider of pubkit.json's hosting block: {dns = {external_nameservers}}. Null when Hetzner does not serve it."
+  description = "Hetzner serves the zone, which must already exist there (created in the Hetzner Console), as a hetzner provider of pubrules.json's hosting block: {dns = {external_nameservers}}. Null when Hetzner does not serve it."
   type = object({
     dns = optional(object({
       external_nameservers = optional(list(string), [])
@@ -43,7 +43,7 @@ variable "hetzner" {
 }
 
 variable "cloudflare" {
-  description = "Cloudflare serves the zone, as a cloudflare provider of pubkit.json's hosting block: {account_id}. Null when Cloudflare does not serve it."
+  description = "Cloudflare serves the zone, as a cloudflare provider of pubrules.json's hosting block: {account_id}. Null when Cloudflare does not serve it."
   type = object({
     account_id = string
   })
@@ -56,7 +56,7 @@ variable "cloudflare" {
 }
 
 variable "desec" {
-  description = "deSEC serves the zone too, its records written by terraform/desec-zones, as a desec provider of pubkit.json's hosting block: {dns = {external_nameservers}}, the names deSEC serves every zone from, which its API does not report. Null when deSEC does not serve it."
+  description = "deSEC serves the zone too, its records written by terraform/desec-zones, as a desec provider of pubrules.json's hosting block: {dns = {external_nameservers}}, the names deSEC serves every zone from, which its API does not report. Null when deSEC does not serve it."
   type = object({
     dns = object({
       external_nameservers = list(string)

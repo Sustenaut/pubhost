@@ -1,5 +1,5 @@
 output "nameservers" {
-  description = "The nameservers to give the registrar: Hetzner's (its external set when pubkit.json gives one, else the assigned ones), Cloudflare's and deSEC's."
+  description = "The nameservers to give the registrar: Hetzner's (its external set when pubrules.json gives one, else the assigned ones), Cloudflare's and deSEC's."
   value       = local.registrar_nameservers
 }
 

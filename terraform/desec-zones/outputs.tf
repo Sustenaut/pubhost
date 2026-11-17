@@ -6,7 +6,7 @@ output "ds" {
 }
 
 output "keys" {
-  description = "Each zone's keys at deSEC, as DNSKEY values: what pubkit.json's dnssec.keys gives for the desec provider."
+  description = "Each zone's keys at deSEC, as DNSKEY values: what pubrules.json's dnssec.keys gives for the desec provider."
   value = {
     for zone_name, domain in desec_domain.zone : zone_name => sort([for key in domain.keys : key.dnskey])
   }

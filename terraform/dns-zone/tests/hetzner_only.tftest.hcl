@@ -13,7 +13,7 @@ mock_provider "hcloud" {
 
 variables {
   zone    = "example.eu"
-  hetzner = jsondecode(file("../testdata/pubkit.json")).hosting.providers.hetzner
+  hetzner = jsondecode(file("../testdata/pubrules.json")).hosting.providers.hetzner
   records = { web = { name = "@", type = "A", ttl = 300, values = ["192.0.2.1"] } }
 }
 

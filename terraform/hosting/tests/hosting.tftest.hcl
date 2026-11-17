@@ -1,4 +1,4 @@
-# Runs without credentials: every provider is mocked. testdata/pubkit.json
+# Runs without credentials: every provider is mocked. testdata/pubrules.json
 # has three zones: example.eu on Hetzner and Cloudflare, with mailbox.org
 # email, a server at the apex, a Pages site and a Cloud Run site;
 # example.org on Hetzner alone, with a server and a Pages site served from
@@ -35,7 +35,7 @@ mock_provider "cloudflare" {
   }
 }
 
-# testdata/pubkit.json gives blog.example.eu the subdomain above, the
+# testdata/pubrules.json gives blog.example.eu the subdomain above, the
 # name Cloudflare picks when the project's own is taken; docs.example.org
 # has its project's own name.
 override_resource {
@@ -44,7 +44,7 @@ override_resource {
 }
 
 variables {
-  config = jsondecode(file("../testdata/pubkit.json")).hosting
+  config = jsondecode(file("../testdata/pubrules.json")).hosting
   servers = {
     web   = { ipv4 = "192.0.2.1", ipv6 = "2001:db8::1" }
     small = { ipv4 = "192.0.2.2" }
@@ -111,7 +111,7 @@ run "zones" {
       output.nameservers["example.eu"] == sort(concat(var.config.providers.hetzner.dns.external_nameservers, ["ns1.cloudflare.example.", "ns2.cloudflare.example."])) &&
       output.nameservers["example.org"] == sort(var.config.providers.hetzner.dns.external_nameservers)
     )
-    error_message = "The registrar gets the external nameservers from pubkit.json, and Cloudflare's where it serves the zone too."
+    error_message = "The registrar gets the external nameservers from pubrules.json, and Cloudflare's where it serves the zone too."
   }
 
   assert {
@@ -161,7 +161,7 @@ run "zones" {
   }
 }
 
-# testdata/pubkit.json sets the email TTL for every zone, the sites' TTL
+# testdata/pubrules.json sets the email TTL for every zone, the sites' TTL
 # for example.org, and docs.example.org's own; the rest are the defaults.
 run "ttls" {
   command = plan
@@ -182,7 +182,7 @@ run "ttl_in_range" {
   command = plan
 
   variables {
-    config = merge(jsondecode(file("../testdata/pubkit.json")).hosting, { ttl = { sites = 5 } })
+    config = merge(jsondecode(file("../testdata/pubrules.json")).hosting, { ttl = { sites = 5 } })
   }
 
   expect_failures = [var.config]
@@ -199,7 +199,7 @@ run "extra_records" {
 
   assert {
     condition     = toset(keys(output.records["example.org"])) == toset(["auth_a", "docs_a", "mail"])
-    error_message = "Records pubkit.json does not describe join their zone's."
+    error_message = "Records pubrules.json does not describe join their zone's."
   }
 }
 
@@ -221,7 +221,7 @@ run "dns_provider_must_serve_dns" {
 
   variables {
     config = {
-      providers = { gcp = jsondecode(file("../testdata/pubkit.json")).hosting.providers.gcp }
+      providers = { gcp = jsondecode(file("../testdata/pubrules.json")).hosting.providers.gcp }
       zones     = { "example.eu" = { dns = ["gcp"] } }
     }
   }
@@ -234,7 +234,7 @@ run "site_kind_follows_its_provider" {
 
   variables {
     config = {
-      providers = jsondecode(file("../testdata/pubkit.json")).hosting.providers
+      providers = jsondecode(file("../testdata/pubrules.json")).hosting.providers
       zones = {
         "example.eu" = {
           dns   = ["hetzner"]
@@ -261,11 +261,11 @@ run "dnssec_keys_follow_dns" {
   command = plan
 
   variables {
-    config = merge(jsondecode(file("../testdata/pubkit.json")).hosting, {
+    config = merge(jsondecode(file("../testdata/pubrules.json")).hosting, {
       zones = {
         "example.net" = {
           dns    = ["desec"]
-          dnssec = jsondecode(file("../testdata/pubkit.json")).hosting.zones["example.net"].dnssec
+          dnssec = jsondecode(file("../testdata/pubrules.json")).hosting.zones["example.net"].dnssec
         }
       }
     })
@@ -274,7 +274,7 @@ run "dnssec_keys_follow_dns" {
   expect_failures = [var.config]
 }
 
-# Cloudflare gave the project another pages.dev name than pubkit.json
+# Cloudflare gave the project another pages.dev name than pubrules.json
 # says: the apply stops instead of pointing the name at the wrong one. Its
 # own state, so the project is created afresh with the overridden name.
 run "pages_subdomain_must_match" {

@@ -1,8 +1,8 @@
-"""`pubhost dns check ZONE`: does every nameserver of a zone in pubkit.json's
+"""`pubhost dns check ZONE`: does every nameserver of a zone in pubrules.json's
 hosting block give the same answers, and, for a signed zone, does each one
 validate on its own?
 
-The nameservers are the ones the zone's providers are given in pubkit.json
+The nameservers are the ones the zone's providers are given in pubrules.json
 (dns.external_nameservers), the zone's NS rrset as resolvers find it, and
 the apex NS rrset each of those serves, so a provider joining a zone is
 asked before the registrar lists it. Each is asked, without recursion, for
@@ -20,7 +20,7 @@ that changed its keys, fails here before any DS record is at the registrar.
 dig and delv are BIND 9's (Debian's bind9-dnsutils). Nothing is changed
 anywhere: every query is a read.
 
-The hosting block's shape is pubkit's (`pubkit.hosting`, which `pubkit sync`
+The hosting block's shape is pubrules's (`pubrules.hosting`, which `pubrules sync`
 checks); this reads the block through it.
 """
 
@@ -37,7 +37,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from pubkit.hosting import SEP, dnskey, settings
+from pubrules.hosting import SEP, dnskey, settings
 
 TIMEOUT = 30
 RDATA = 4  # the fields of a record dig prints before its value: owner, TTL, class, type
@@ -49,7 +49,7 @@ VALIDATED = ("; fully validated", "; negative response, fully validated")
 # are letters, digits, hyphens and underscores and start with neither a
 # hyphen nor a plus, and types in capitals. Names and types also go after
 # -q and -t, so neither is ever read as an option, and nothing else (a
-# name from pubkit.json, from --record, or from a nameserver's answer) is
+# name from pubrules.json, from --record, or from a nameserver's answer) is
 # passed or written into delv's trust anchors.
 NAME = re.compile(r"(?:[a-z0-9_][a-z0-9_-]{0,62}\.)+")
 TYPE = re.compile(r"[A-Z][A-Z0-9]{0,9}")
@@ -203,12 +203,12 @@ def pinned_keys(dnssec: dict[str, Any]) -> set[str]:
 
 
 def check_keys(zone: str, servers: list[str], pinned: set[str]) -> list[str]:
-    """Each nameserver's DNSKEY rrset is the keys pubkit.json pins, all of them."""
+    """Each nameserver's DNSKEY rrset is the keys pubrules.json pins, all of them."""
     problems = []
     for server in servers:
         served = dig(server, f"{zone}.", "DNSKEY").values
         for key in sorted(served - pinned):
-            problems.append(f"{server} serves a key pubkit.json does not pin: {key}")
+            problems.append(f"{server} serves a key pubrules.json does not pin: {key}")
         for key in sorted(pinned - served):
             problems.append(f"{server} does not serve the pinned key {key}")
     return problems
@@ -276,16 +276,16 @@ def lagging(zone: str, servers: list[str]) -> list[str]:
 
 
 def read_config(root: Path) -> dict[str, Any]:
-    """pubkit.json, as JSON; its hosting block is checked by pubkit.hosting."""
-    path = root / "pubkit.json"
+    """pubrules.json, as JSON; its hosting block is checked by pubrules.hosting."""
+    path = root / "pubrules.json"
     if not path.is_file():
-        sys.exit(f"pubhost: no pubkit.json in {root}; dns check reads its hosting block")
+        sys.exit(f"pubhost: no pubrules.json in {root}; dns check reads its hosting block")
     try:
         config = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
-        sys.exit(f"pubhost: pubkit.json is not JSON: {e}")
+        sys.exit(f"pubhost: pubrules.json is not JSON: {e}")
     if not isinstance(config, dict):
-        sys.exit("pubhost: pubkit.json must be a JSON object")
+        sys.exit("pubhost: pubrules.json must be a JSON object")
     return config
 
 
@@ -293,7 +293,7 @@ def check(root: Path, zone: str, extra: list[str]) -> int:
     hosting = settings(read_config(root))
     zones = hosting.get("zones", {})
     if zone not in zones:
-        sys.exit(f"pubhost: pubkit.json's hosting block has no zone {zone}; it has "
+        sys.exit(f"pubhost: pubrules.json's hosting block has no zone {zone}; it has "
                  f"{', '.join(sorted(zones)) or 'none'}")
     providers = hosting.get("providers", {})
     config = zones[zone]

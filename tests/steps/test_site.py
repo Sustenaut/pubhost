@@ -97,11 +97,11 @@ def webp_card(repo):
     (repo / "_site" / "card.png").write_bytes(b"RIFF\x00\x00\x00\x00WEBPVP8 ")
 
 
-@given(parsers.parse('pubkit.json declares exceptions for "{rules}" until "{until}"'))
+@given(parsers.parse('pubrules.json declares exceptions for "{rules}" until "{until}"'))
 def site_exceptions(repo, env, rules, until):
     declared = [{"rule": r.strip(), "reason": "the card is coming", "until": until}
                 for r in rules.split(",")]
-    (repo / "pubkit.json").write_text(json.dumps({"kind": "service", "exceptions": declared}))
+    (repo / "pubrules.json").write_text(json.dumps({"kind": "service", "exceptions": declared}))
     env["PUBHOST_TODAY"] = "2026-10-28"
 
 

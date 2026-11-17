@@ -1,13 +1,13 @@
 """pubhost: what makes a repository's sites and zones exist and stay right
 at the outside systems that serve them. Its Terraform modules (terraform/)
-turn pubkit.json's hosting block into DNS, mail, DNSSEC, Cloud Run and
+turn pubrules.json's hosting block into DNS, mail, DNSSEC, Cloud Run and
 bucket resources; `pubhost dns check` compares a zone's nameservers live;
 terraform.yml applies a stack from CI; the actions build an image
 (docker-build) and deploy a static site (deploy-static), which first runs
 `pubhost site check`.
 
-It uses pubkit as a library, for the hosting block's shape (pubkit.hosting),
-which `pubkit sync` checks; pubkit never imports it.
+It uses pubrules as a library, for the hosting block's shape (pubrules.hosting),
+which `pubrules sync` checks; pubrules never imports it.
 """
 
 from __future__ import annotations

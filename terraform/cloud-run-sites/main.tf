@@ -1,4 +1,4 @@
-# The domain mappings of pubkit.json's Cloud Run sites: each site's name,
+# The domain mappings of pubrules.json's Cloud Run sites: each site's name,
 # mapped to its service in its google-cloud provider's project and region.
 # The service itself is the repository's own (its image, scaling and
 # access); terraform/hosting writes the CNAME, and Google issues the

@@ -1,10 +1,10 @@
-# Runs without credentials: Google is mocked. testdata/pubkit.json has one
+# Runs without credentials: Google is mocked. testdata/pubrules.json has one
 # Cloud Run site, pub.example.eu, among sites at other providers.
 
 mock_provider "google" {}
 
 variables {
-  config = jsondecode(file("../testdata/pubkit.json")).hosting
+  config = jsondecode(file("../testdata/pubrules.json")).hosting
 }
 
 run "mappings" {

@@ -1,5 +1,5 @@
 # Runs without credentials: Google is mocked. The project and region are
-# testdata/pubkit.json's, as a repository reads its own.
+# testdata/pubrules.json's, as a repository reads its own.
 
 mock_provider "google" {
   mock_resource "google_service_account" {
@@ -13,9 +13,9 @@ mock_provider "google" {
 
 variables {
   name                 = "pub-site"
-  project              = jsondecode(file("../testdata/pubkit.json")).hosting.providers.gcp.project
+  project              = jsondecode(file("../testdata/pubrules.json")).hosting.providers.gcp.project
   project_number       = "123456789"
-  region               = jsondecode(file("../testdata/pubkit.json")).hosting.providers.gcp.region
+  region               = jsondecode(file("../testdata/pubrules.json")).hosting.providers.gcp.region
   account_id           = "example-pub-site"
   account_display_name = "Example pub-site"
 }

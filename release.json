@@ -18,6 +18,6 @@
     "name": "pubhost",
     "check": "pubhost --version"
   },
-  "install": "pip install https://github.com/Sustenaut/pubhost/releases/download/{tag}/pubhost-{version}-py3-none-any.whl, beside the pubkit it names",
+  "install": "pip install https://github.com/Sustenaut/pubhost/releases/download/{tag}/pubhost-{version}-py3-none-any.whl, beside the pubrules it names",
   "key": "pub:sha2-256:c6kujsxhzx4pg7qklemhmfozkcfehbb5jo7mwewks3hh2dldvyyq"
 }

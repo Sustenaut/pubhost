@@ -1,4 +1,4 @@
-# pubkit.json's zones at deSEC: each zone a desec provider serves, with
+# pubrules.json's zones at deSEC: each zone a desec provider serves, with
 # every record terraform/hosting writes at the other providers, so the
 # answers are the same whichever a resolver asks. Apart from
 # terraform/hosting because the deSEC provider will not start without a
@@ -7,7 +7,7 @@
 #
 #   module "desec_zones" {
 #     source           = "github.com/Sustenaut/pubhost//terraform/desec-zones?ref=<commit>" # vX.Y.Z
-#     config           = jsondecode(file("${path.root}/pubkit.json")).hosting
+#     config           = jsondecode(file("${path.root}/pubrules.json")).hosting
 #     records          = module.hosting.records
 #     apex_nameservers = module.hosting.apex_nameservers
 #   }
@@ -40,7 +40,7 @@ locals {
     }
   ]...)
 
-  # The other signing providers' keys, as pubkit.json pins them. A DNSKEY
+  # The other signing providers' keys, as pubrules.json pins them. A DNSKEY
   # rrset gets an hour, as each provider gives its own keys.
   dnskey_ttl = 3600
   other_keys = {

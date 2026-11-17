@@ -1,10 +1,10 @@
 variable "config" {
   description = <<-EOT
-    The hosting block of the repository's pubkit.json, as
-    jsondecode(file("pubkit.json")).hosting: the providers, each with its
+    The hosting block of the repository's pubrules.json, as
+    jsondecode(file("pubrules.json")).hosting: the providers, each with its
     type and its own facts, and the zones, each naming the providers that
     serve its DNS, its email and its sites. README.md ("Hosting modules")
-    describes every setting; `pubkit sync` checks the block, since
+    describes every setting; `pubrules sync` checks the block, since
     Terraform drops a setting it does not know without a word.
   EOT
   type = object({
@@ -131,7 +131,7 @@ variable "config" {
 }
 
 variable "servers" {
-  description = "The addresses of the servers that sites of kind server (and pages sites' standby) name, by the name pubkit.json uses. They are known only once the servers exist, so they come from Terraform, not pubkit.json."
+  description = "The addresses of the servers that sites of kind server (and pages sites' standby) name, by the name pubrules.json uses. They are known only once the servers exist, so they come from Terraform, not pubrules.json."
   type = map(object({
     ipv4 = string
     ipv6 = optional(string)
@@ -146,12 +146,12 @@ variable "servers" {
         ]
       ]
     ]))
-    error_message = "Every server a site names in pubkit.json needs its addresses in servers."
+    error_message = "Every server a site names in pubrules.json needs its addresses in servers."
   }
 }
 
 variable "records" {
-  description = "Other records, by zone, in the dns-zone module's form: anything pubkit.json does not describe."
+  description = "Other records, by zone, in the dns-zone module's form: anything pubrules.json does not describe."
   type = map(map(object({
     name   = string
     type   = string
