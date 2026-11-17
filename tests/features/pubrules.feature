@@ -1,5 +1,5 @@
 Feature: pubhost uses pubrules as a library, through the names its README lists
-  pubhost reads pubrules.json's hosting block through pubrules's own check of it,
+  pubhost reads pubrules.json's hosting block through pubrules' own check of it,
   so it imports pubrules rather than copying it. pubrules never imports pubhost,
   and names nothing of it. The names pubhost takes are listed here, and in
   the README, so a pubrules change that drops one fails this suite first.
@@ -18,10 +18,10 @@ Feature: pubhost uses pubrules as a library, through the names its README lists
     Then it succeeds
     And it prints "pubhost "
 
-  Scenario: The modules and pubrules's hosting check read the same hosting block
-    The hosting block's shape is pubrules's, and the modules' variable types are
+  Scenario: The modules and pubrules' hosting check read the same hosting block
+    The hosting block's shape is pubrules', and the modules' variable types are
     pubhost's. Both read terraform/testdata/pubrules.json, which the modules'
     own tests use, so a setting one side accepts and the other drops shows.
-    When pubrules's hosting check reads terraform/testdata/pubrules.json
+    When pubrules' hosting check reads terraform/testdata/pubrules.json
     Then it accepts it
     And every setting it names is one the hosting module's config variable declares

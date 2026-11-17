@@ -54,13 +54,13 @@ holds it to, and which the installed pubrules must have:
 - `pubrules.hosting.SEP` and `pubrules.hosting.dnskey`: a DNSKEY's key-signing
   flag and its parsing, for the pinned keys.
 
-The modules' variable types are pubhost's, and the block's shape is pubrules's.
+The modules' variable types are pubhost's, and the block's shape is pubrules'.
 Both read `terraform/testdata/pubrules.json`: the modules' tests run on it, and
 `tests/features/pubrules.feature` checks that pubrules accepts it and that every
 setting it names is one `terraform/hosting`'s `config` declares.
 
 `src/pubhost/site.py` stays standard-library only, because deploy-static runs
-it from its own source with nothing installed. It carries a copy of pubrules's
+it from its own source with nothing installed. It carries a copy of pubrules'
 `conform.exceptions`, marked as one, to read the site rules' exceptions.
 
 ## Hosting modules
@@ -337,7 +337,7 @@ own modules, which only a repository on Google Cloud or deSEC takes.
   ```
 
   Pin it as above, to the commit of a pubhost release, with the version in
-  a comment; the site check it runs is that release's. pubrules's nightly
+  a comment; the site check it runs is that release's. pubrules' nightly
   moves a pin of this form to pubhost's latest release.
 
 **Moving a zone that is already in use.** Hetzner made the apex NS rrset

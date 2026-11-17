@@ -39,7 +39,7 @@ def parser() -> argparse.ArgumentParser:
     return parser
 
 
-# A copy of pubrules's paths.confined (pubrules 0.34.0): a path given on the
+# A copy of pubrules' paths.confined (pubrules 0.34.0): a path given on the
 # command line lies in the working directory or a temporary directory.
 def confined(path: Path | str, what: str) -> Path:
     bases = [Path.cwd(), Path(tempfile.gettempdir())]

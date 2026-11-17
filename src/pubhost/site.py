@@ -258,7 +258,7 @@ def checks(root: Path, base: str | None) -> tuple[int, dict[str, list[str]]]:
     return count, out
 
 
-# A copy of pubrules's conform.today and conform.exceptions (pubrules 0.34.0),
+# A copy of pubrules' conform.today and conform.exceptions (pubrules 0.34.0),
 # so this module needs only the standard library: deploy-static runs it from
 # its own source with nothing installed.
 def today() -> datetime.date:

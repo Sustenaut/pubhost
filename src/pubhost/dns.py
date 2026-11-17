@@ -20,7 +20,7 @@ that changed its keys, fails here before any DS record is at the registrar.
 dig and delv are BIND 9's (Debian's bind9-dnsutils). Nothing is changed
 anywhere: every query is a read.
 
-The hosting block's shape is pubrules's (`pubrules.hosting`, which `pubrules sync`
+The hosting block's shape is pubrules' (`pubrules.hosting`, which `pubrules sync`
 checks); this reads the block through it.
 """
 

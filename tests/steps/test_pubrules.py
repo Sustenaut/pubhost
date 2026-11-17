@@ -78,7 +78,7 @@ def settings_named(value, path=()):
     return out
 
 
-@when("pubrules's hosting check reads terraform/testdata/pubrules.json", target_fixture="checked")
+@when("pubrules' hosting check reads terraform/testdata/pubrules.json", target_fixture="checked")
 def hosting_check():
     import json  # noqa: PLC0415
 
