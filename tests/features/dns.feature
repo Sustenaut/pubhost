@@ -117,3 +117,15 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
     When I run pubhost "dns" "check" "example.org"
     Then it fails
     And stderr mentions "dns check needs dig, from BIND 9"
+
+  Scenario Outline: A pubrules.json the check can't read stops it with a message
+    Given pubrules.json <state>
+    When I run pubhost "dns" "check" "example.org"
+    Then it fails
+    And stderr mentions "<message>"
+
+    Examples:
+      | state           | message                                      |
+      | is missing      | no pubrules.json in                          |
+      | holds "{"       | pubrules.json is not JSON                    |
+      | holds "[]"      | pubrules.json must be a JSON object          |

@@ -95,6 +95,16 @@ def testdata_config(repo):
     (repo / "pubrules.json").write_text(TESTDATA.read_text())
 
 
+@given("pubrules.json is missing")
+def no_config(repo):
+    (repo / "pubrules.json").unlink()
+
+
+@given(parsers.parse('pubrules.json holds "{text}"'))
+def config_text(repo, text):
+    (repo / "pubrules.json").write_text(text)
+
+
 @given('every nameserver of "example.net" serves it alike')
 def example_net(dns):
     """deSEC's nameservers, from pubrules.json, and Cloudflare's, which the
