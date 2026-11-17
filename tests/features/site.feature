@@ -3,7 +3,7 @@ Feature: pubhost site check reads a built site as robots and other sites do
   carry an Open Graph card whose image is large enough for LinkedIn's large
   preview, unless they ask not to be indexed. robots.txt lets the link-preview bots in, even where it keeps
   search engines out. deploy-static runs the check before every deploy.
-  Each rule has an ID, and pubkit.json can declare an exception to it.
+  Each rule has an ID, and pubrules.json can declare an exception to it.
 
   Background:
     Given a built site in "_site" with a complete page "index.html"
@@ -100,14 +100,14 @@ Feature: pubhost site check reads a built site as robots and other sites do
 
   Scenario: A declared exception waives its rule and is listed as open
     Given the page "_site/about/index.html" has only a title
-    And pubkit.json declares exceptions for "WEB-PAGE-01, WEB-PAGE-02, WEB-OG-01, WEB-OG-03" until "2099-01-01"
+    And pubrules.json declares exceptions for "WEB-PAGE-01, WEB-PAGE-02, WEB-OG-01, WEB-OG-03" until "2099-01-01"
     When I run pubhost "site" "check" "_site" "--url" "https://example.eu"
     Then it succeeds
     And it prints "open exception: WEB-OG-01 until 2099-01-01"
     And it prints "2 page(s) meet the 2 site rules"
 
   Scenario: An expired exception fails
-    Given pubkit.json declares exceptions for "WEB-OG-03" until "2020-01-01"
+    Given pubrules.json declares exceptions for "WEB-OG-03" until "2020-01-01"
     When I run pubhost "site" "check" "_site" "--url" "https://example.eu"
     Then it fails
     And stderr mentions "WEB-OG-03: the exception expired on 2020-01-01"

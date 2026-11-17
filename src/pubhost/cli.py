@@ -3,7 +3,7 @@
     pubhost dns check ZONE [--record NAME/TYPE...]
     pubhost site check DIR [--url URL]
 
-Each runs in the repository's root, where pubkit.json is. The Terraform
+Each runs in the repository's root, where pubrules.json is. The Terraform
 modules, terraform.yml and the deploy-static and docker-build actions are
 used from the repository by commit (README).
 """
@@ -23,11 +23,11 @@ def parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pubhost", description=__doc__.split("\n")[0])
     parser.add_argument("--version", action="version", version=f"pubhost {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
-    p = commands.add_parser("dns", help="check a zone in pubkit.json's hosting block, live")
+    p = commands.add_parser("dns", help="check a zone in pubrules.json's hosting block, live")
     dns = p.add_subparsers(dest="dns_command", required=True)
     p = dns.add_parser("check", help="every nameserver gives the same answers and, with dnssec, "
                                      "validates alone against the pinned keys")
-    p.add_argument("zone", help="a zone in pubkit.json's hosting block, such as example.eu")
+    p.add_argument("zone", help="a zone in pubrules.json's hosting block, such as example.eu")
     p.add_argument("--record", action="append", default=[], metavar="NAME/TYPE",
                    help="another rrset to compare, such as www/A; repeat it")
     p = commands.add_parser("site", help="check a public site's built pages")
@@ -39,7 +39,7 @@ def parser() -> argparse.ArgumentParser:
     return parser
 
 
-# A copy of pubkit's paths.confined (pubkit 0.34.0): a path given on the
+# A copy of pubrules' paths.confined (pubrules 0.34.0): a path given on the
 # command line lies in the working directory or a temporary directory.
 def confined(path: Path | str, what: str) -> Path:
     bases = [Path.cwd(), Path(tempfile.gettempdir())]

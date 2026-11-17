@@ -11,11 +11,11 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [{ name = "David Schryer", email = "schryer@gmail.com" }]
-# pubkit, as a library: the hosting block's shape, which `pubkit sync` checks
-# and `pubhost dns check` reads (README, "What pubhost takes from pubkit").
-# The floor is the oldest pubkit pubhost works with; tests/requirements.lock
+# pubrules, as a library: the hosting block's shape, which `pubrules sync` checks
+# and `pubhost dns check` reads (README, "What pubhost takes from pubrules").
+# The floor is the oldest pubrules pubhost works with; tests/requirements.lock
 # pins the one it is tested with.
-dependencies = ["pubkit>=0.34.0"]
+dependencies = ["pubrules>=0.43.0"]
 
 [project.urls]
 Repository = "https://github.com/Sustenaut/pubhost"

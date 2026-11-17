@@ -39,7 +39,7 @@ jobs:
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-providers-${{ matrix.module }}-${{ hashFiles(format('terraform/{0}/**/*.tf', matrix.module)) }}
-      - uses: Sustenaut/pubkit/actions/terraform-init@afabaf91f5285f163967383edaadaee927e0c30a # v0.35.1
+      - uses: Sustenaut/pubrules/actions/terraform-init@2fe559caa00c029d9be864faa7f7cc20cd234d0e # v0.43.0
         with:
           dir: terraform/${{ matrix.module }}
           args: -backend=false -input=false
@@ -90,7 +90,7 @@ jobs:
           [ -n "$first" ] && [ "$first" = "$second" ]
 
   passed:
-    # The required check's name, as pubkit.json's protect.checks lists it.
+    # The required check's name, as pubrules.json's protect.checks lists it.
     name: hosting / passed
     if: ${{ !cancelled() }}
     needs: [terraform, deploy-static, docker-build-action]

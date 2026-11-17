@@ -1,15 +1,15 @@
 Feature: pubhost dns check compares a zone's nameservers and validates each one alone
-  Every nameserver of a zone in pubkit.json's hosting block (the ones its
+  Every nameserver of a zone in pubrules.json's hosting block (the ones its
   providers are given there, the ones resolvers find, and the ones each of
   those lists) must give the same answers for every rrset the block
   describes. A signed zone's nameservers must each serve exactly the keys
-  pubkit.json pins and validate alone, with the pinned key-signing keys as
+  pubrules.json pins and validate alone, with the pinned key-signing keys as
   trust anchors, for every rrset and for a name that does not exist: what
   a resolver needs once the registrar has a DS record for each provider.
   The check only reads, through dig and delv.
 
   Background:
-    Given pubkit.json has the hosting block the Terraform modules are tested with
+    Given pubrules.json has the hosting block the Terraform modules are tested with
 
   Scenario: A signed zone whose nameservers agree and each validate passes
     Given every nameserver of "example.net" serves it alike
@@ -69,12 +69,12 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
     Then it fails
     And stderr mentions "ns2.cloudflare.example. does not serve example.net (status REFUSED, not authoritative)"
 
-  Scenario: A key pubkit.json does not pin fails the check
+  Scenario: A key pubrules.json does not pin fails the check
     Given every nameserver of "example.net" serves it alike
     And "ns1.cloudflare.example." also serves the key "257 3 13 c29tZXRoaW5nIGVsc2U="
     When I run pubhost "dns" "check" "example.net"
     Then it fails
-    And stderr mentions "ns1.cloudflare.example. serves a key pubkit.json does not pin: 257 3 13 c29tZXRoaW5nIGVsc2U="
+    And stderr mentions "ns1.cloudflare.example. serves a key pubrules.json does not pin: 257 3 13 c29tZXRoaW5nIGVsc2U="
 
   Scenario: A provider that does not publish the other's keys fails the check
     Given every nameserver of "example.net" serves it alike
@@ -85,7 +85,7 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
 
   Scenario: A nameserver whose answers do not validate against the pinned keys fails the check
     Given every nameserver of "example.net" serves it alike
-    And "ns2.desec.org." signs with a key pubkit.json does not pin
+    And "ns2.desec.org." signs with a key pubrules.json does not pin
     When I run pubhost "dns" "check" "example.net"
     Then it fails
     And stderr mentions "ns2.desec.org.: example.net. A does not validate against the pinned keys"
@@ -98,7 +98,7 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
     Then it fails
     And stderr mentions "mail.example.org. MX differs between nameservers"
 
-  Scenario Outline: A check pubkit cannot run stops it with a message
+  Scenario Outline: A check pubrules cannot run stops it with a message
     Given every nameserver of "example.org" serves it alike
     When I run pubhost <args>
     Then it fails
@@ -117,3 +117,15 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
     When I run pubhost "dns" "check" "example.org"
     Then it fails
     And stderr mentions "dns check needs dig, from BIND 9"
+
+  Scenario Outline: A pubrules.json the check can't read stops it with a message
+    Given pubrules.json <state>
+    When I run pubhost "dns" "check" "example.org"
+    Then it fails
+    And stderr mentions "<message>"
+
+    Examples:
+      | state           | message                                      |
+      | is missing      | no pubrules.json in                          |
+      | holds "{"       | pubrules.json is not JSON                    |
+      | holds "[]"      | pubrules.json must be a JSON object          |

@@ -1,0 +1,4 @@
+{
+  "category": "changed",
+  "change": "pubkit is now pubrules: pubhost depends on pubrules 0.43.0 or later instead of pubkit and reads the hosting block from the repository's pubrules.json"
+}

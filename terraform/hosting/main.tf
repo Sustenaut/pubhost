@@ -1,6 +1,6 @@
-# Every zone in pubkit.json's hosting block: its DNS at the providers it
+# Every zone in pubrules.json's hosting block: its DNS at the providers it
 # names, its email records, and its sites, each at its provider. The
-# providers' facts (nameservers, accounts, mail hosts) are in pubkit.json
+# providers' facts (nameservers, accounts, mail hosts) are in pubrules.json
 # with everything else, so this module holds no provider's names; Terraform
 # adds only what is known once things exist, a server's addresses.
 #
@@ -15,7 +15,7 @@
 locals {
   providers = var.config.providers
 
-  # The TTLs a zone's records get unless pubkit.json sets them: in
+  # The TTLs a zone's records get unless pubrules.json sets them: in
   # hosting.ttl for every zone, in a zone's ttl for its records, or in a
   # site's ttl for that site's. Lower them ahead of a change, so resolvers
   # pick it up sooner, and raise them again after.
@@ -41,7 +41,7 @@ locals {
         key      = name == "@" ? "apex" : replace(name, ".", "_")
         ttl      = coalesce(site.ttl, local.ttl[zone_name].sites)
         settings = local.providers[site.provider]
-        # A Pages project's pages.dev name: its name, unless pubkit.json
+        # A Pages project's pages.dev name: its name, unless pubrules.json
         # gives the one Cloudflare chose.
         pages_subdomain = site.kind == "pages" ? coalesce(site.subdomain, "${site.project}.pages.dev") : null
       })
@@ -141,7 +141,7 @@ module "zone" {
     for name in each.value.dns : { dns = local.providers[name].dns } if local.providers[name].type == "desec"
   ])
 
-  # pubkit.json names each provider's keys by the provider's name; the zone
+  # pubrules.json names each provider's keys by the provider's name; the zone
   # module, by its type, of which a zone has at most one.
   dnssec = each.value.dnssec == null ? null : {
     keys = { for name, keys in each.value.dnssec.keys : local.providers[name].type => keys }
@@ -155,7 +155,7 @@ module "zone" {
 # a standby; served_by chooses which of the two the name points at.
 #
 # The CNAME points at the project's pages.dev name, worked out from
-# pubkit.json so that it is known when Terraform plans: deSEC's provider
+# pubrules.json so that it is known when Terraform plans: deSEC's provider
 # fails an apply on a record whose value was unknown at plan time. That
 # name is the project's name, or, if someone else has it, the name with a
 # suffix Cloudflare picks; the postcondition stops the apply then, and
@@ -174,7 +174,7 @@ resource "cloudflare_pages_project" "site" {
 
     postcondition {
       condition     = self.subdomain == each.value.pages_subdomain
-      error_message = "Cloudflare named the Pages project ${each.value.project}'s address ${self.subdomain}, not ${each.value.pages_subdomain}. Set \"subdomain\": \"${self.subdomain}\" on ${each.key}'s site in pubkit.json, and apply again."
+      error_message = "Cloudflare named the Pages project ${each.value.project}'s address ${self.subdomain}, not ${each.value.pages_subdomain}. Set \"subdomain\": \"${self.subdomain}\" on ${each.key}'s site in pubrules.json, and apply again."
     }
   }
 }

@@ -4,7 +4,7 @@ variable "name" {
 }
 
 variable "project" {
-  description = "The Google Cloud project: project in the repository's pubkit.json, under hosting.providers."
+  description = "The Google Cloud project: project in the repository's pubrules.json, under hosting.providers."
   type        = string
 }
 
@@ -14,7 +14,7 @@ variable "project_number" {
 }
 
 variable "region" {
-  description = "The region: region in the repository's pubkit.json, under hosting.providers."
+  description = "The region: region in the repository's pubrules.json, under hosting.providers."
   type        = string
 }
 

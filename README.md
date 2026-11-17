@@ -1,7 +1,7 @@
 # pubhost
 
 What makes a repository's sites and zones exist and stay right at the
-outside systems that serve them: Terraform modules that turn `pubkit.json`'s
+outside systems that serve them: Terraform modules that turn `pubrules.json`'s
 hosting block into DNS, mail, DNSSEC, Cloud Run and bucket resources at
 Hetzner, Cloudflare, deSEC, Google Cloud and mailbox.org (`terraform/`); a
 live check across a zone's nameservers (`pubhost dns check`); a reusable
@@ -10,7 +10,7 @@ build an image (`actions/docker-build`) and deploy a static site
 (`actions/deploy-static`), which first runs `pubhost site check`.
 
 What runs inside one repository about itself stays in
-[pubkit](https://github.com/Sustenaut/pubkit): `pubkit sync`, which checks the
+[pubrules](https://github.com/Sustenaut/pubrules): `pubrules sync`, which checks the
 hosting block's shape, and the generated CI. Its `ci / site` job runs the
 deploy-static the repository's own deploy workflow pins, in check-only mode,
 and `job-service-terraform.yml` checks a stack without a backend.
@@ -31,36 +31,36 @@ The commit is the release tag's
 (`git ls-remote https://github.com/Sustenaut/pubhost refs/tags/vX.Y.Z^{}`).
 
 The command is a wheel. A repository that runs `pubhost dns check` lists it
-beside pubkit in its `tests/requirements.txt`, and `pubkit lock` pins both by
+beside pubrules in its `tests/requirements.txt`, and `pubrules lock` pins both by
 sha256:
 
     pubhost @ https://github.com/Sustenaut/pubhost/releases/download/vX.Y.Z/pubhost-X.Y.Z-py3-none-any.whl
 
-pubhost declares the oldest pubkit it works with (`pubkit>=` in
-pyproject.toml); its own `tests/requirements.lock` pins the pubkit it is
+pubhost declares the oldest pubrules it works with (`pubrules>=` in
+pyproject.toml); its own `tests/requirements.lock` pins the pubrules it is
 tested with.
 
-## What pubhost takes from pubkit
+## What pubhost takes from pubrules
 
-pubhost uses pubkit as a library for one thing: the hosting block's shape,
-which `pubkit sync` checks and `pubhost dns check` reads. pubkit never
+pubhost uses pubrules as a library for one thing: the hosting block's shape,
+which `pubrules sync` checks and `pubhost dns check` reads. pubrules never
 imports pubhost and names nothing of it; pubhost offers no `sustenaut.sync`
-or `sustenaut.bump` hook, so pubkit never loads it into its own process.
+or `sustenaut.bump` hook, so pubrules never loads it into its own process.
 
-These are all the names it takes, which `tests/features/pubkit.feature`
-holds it to, and which the installed pubkit must have:
+These are all the names it takes, which `tests/features/pubrules.feature`
+holds it to, and which the installed pubrules must have:
 
-- `pubkit.hosting.settings`: the hosting block, checked.
-- `pubkit.hosting.SEP` and `pubkit.hosting.dnskey`: a DNSKEY's key-signing
+- `pubrules.hosting.settings`: the hosting block, checked.
+- `pubrules.hosting.SEP` and `pubrules.hosting.dnskey`: a DNSKEY's key-signing
   flag and its parsing, for the pinned keys.
 
-The modules' variable types are pubhost's, and the block's shape is pubkit's.
-Both read `terraform/testdata/pubkit.json`: the modules' tests run on it, and
-`tests/features/pubkit.feature` checks that pubkit accepts it and that every
+The modules' variable types are pubhost's, and the block's shape is pubrules'.
+Both read `terraform/testdata/pubrules.json`: the modules' tests run on it, and
+`tests/features/pubrules.feature` checks that pubrules accepts it and that every
 setting it names is one `terraform/hosting`'s `config` declares.
 
 `src/pubhost/site.py` stays standard-library only, because deploy-static runs
-it from its own source with nothing installed. It carries a copy of pubkit's
+it from its own source with nothing installed. It carries a copy of pubrules'
 `conform.exceptions`, marked as one, to read the site rules' exceptions.
 
 ## Hosting modules
@@ -69,7 +69,7 @@ Terraform modules for a repository's domains: their DNS, their email and
 their sites, each at the provider the repository chooses, and the actions
 that build an image and deploy a static site. They are taken from this
 repository by commit, with the version in a comment, and they hold no provider's names, hosts or accounts: those are in the
-repository's own `pubkit.json`, under `hosting`, so each repository keeps
+repository's own `pubrules.json`, under `hosting`, so each repository keeps
 its own setup.
 
 ### The hosting block
@@ -77,7 +77,7 @@ its own setup.
 `providers` are the providers the repository uses, each under a name it
 chooses, with a `type` and that provider's facts. `zones` are its domains,
 each naming the providers that serve its DNS, its email and its sites.
-This is [`terraform/testdata/pubkit.json`](terraform/testdata/pubkit.json),
+This is [`terraform/testdata/pubrules.json`](terraform/testdata/pubrules.json),
 which the modules are tested with (secrets never go here; tokens stay with
 `./with-secrets`):
 
@@ -135,7 +135,7 @@ which the modules are tested with (secrets never go here; tokens stay with
 }
 ```
 
-The provider types pubkit supports, and what each holds:
+The provider types pubrules supports, and what each holds:
 
 | type | settings | serves DNS | sites |
 | --- | --- | --- | --- |
@@ -166,7 +166,7 @@ multi-signer; deSEC signs every zone it serves. Each provider needs a
 key-signing key (flags 257), and all keys one algorithm. Hetzner cannot
 sign, so a zone it serves cannot have `dnssec`. The keys are pinned rather
 than read from the providers: neither rotates them on its own, so a key
-change is a reviewed change to `pubkit.json`. Cloudflare's are on its DNS
+change is a reviewed change to `pubrules.json`. Cloudflare's are on its DNS
 settings page, or `GET /zones/<id>/dnssec` (the KSK) and its DNSKEY rrset;
 deSEC's are in `terraform/desec-zones`' output `keys`. Without `dnssec`,
 Cloudflare does not sign.
@@ -193,10 +193,10 @@ resolvers pick it up sooner, and raise them again after.
 
 A new provider of a known type is a new entry in `providers`; a repository
 on two Hetzner projects names both. A new type, such as another mail
-provider, needs pubkit to learn it once, in `src/pubkit/hosting.py`, and then
-pubhost, in `terraform/hosting` (or a module beside it): a pubkit release,
+provider, needs pubrules to learn it once, in `src/pubrules/hosting.py`, and then
+pubhost, in `terraform/hosting` (or a module beside it): a pubrules release,
 then a pubhost release. Terraform ignores a setting its types do not name,
-so `pubkit sync` (and `sync --check`, in CI) checks the block first and
+so `pubrules sync` (and `sync --check`, in CI) checks the block first and
 stops on anything it does not know.
 
 ### Using it
@@ -209,7 +209,7 @@ the one account it deploys to. A repository with Cloud Run sites adds
 ```hcl
 module "hosting" {
   source = "github.com/Sustenaut/pubhost//terraform/hosting?ref=<commit>" # vX.Y.Z
-  config = jsondecode(file("${path.root}/pubkit.json")).hosting
+  config = jsondecode(file("${path.root}/pubrules.json")).hosting
 
   servers = {
     web = { ipv4 = module.web.ipv4, ipv6 = module.web.ipv6 }
@@ -218,7 +218,7 @@ module "hosting" {
 
 module "cloud_run_sites" {
   source = "github.com/Sustenaut/pubhost//terraform/cloud-run-sites?ref=<commit>" # vX.Y.Z
-  config = jsondecode(file("${path.root}/pubkit.json")).hosting
+  config = jsondecode(file("${path.root}/pubrules.json")).hosting
 
   # When the services are created in the same apply.
   depends_on = [google_cloud_run_v2_service.pub_site]
@@ -243,7 +243,7 @@ provider "desec" {
 
 module "desec_zones" {
   source           = "github.com/Sustenaut/pubhost//terraform/desec-zones?ref=<commit>" # vX.Y.Z
-  config           = jsondecode(file("${path.root}/pubkit.json")).hosting
+  config           = jsondecode(file("${path.root}/pubrules.json")).hosting
   records          = module.hosting.records
   apex_nameservers = module.hosting.apex_nameservers
 }
@@ -337,7 +337,7 @@ own modules, which only a repository on Google Cloud or deSEC takes.
   ```
 
   Pin it as above, to the commit of a pubhost release, with the version in
-  a comment; the site check it runs is that release's. pubkit's nightly
+  a comment; the site check it runs is that release's. pubrules' nightly
   moves a pin of this form to pubhost's latest release.
 
 **Moving a zone that is already in use.** Hetzner made the apex NS rrset
@@ -375,7 +375,7 @@ rrset is `apex_txt`, and a site's are its name (`apex` for `"@"`, dots as
 underscores), with `_a` and `_aaaa` for a server's addresses.
 
 **Checking a zone.** `pubhost dns check ZONE` asks every nameserver of a
-zone in the hosting block (its providers' from `pubkit.json`, the ones
+zone in the hosting block (its providers' from `pubrules.json`, the ones
 resolvers find, and the ones each lists in its apex NS rrset), without
 recursion, for every rrset the block describes (`--record NAME/TYPE` adds
 others, such as a root module's own) and fails when their answers differ,
@@ -399,11 +399,11 @@ its own state: one bucket, one prefix per repository (`prefix = "<repo>"`). What
 every site shares (the project's APIs, the DNS zone, the Workload Identity
 Federation pool) is in a base stack of its own. A site's stack never reads the
 base's state, which holds keys: it reads the project and region from its own
-`pubkit.json`, and finds shared things by their fixed names.
+`pubrules.json`, and finds shared things by their fixed names.
 
 ```hcl
 locals {
-  gcp = jsondecode(file("${path.module}/../pubkit.json")).hosting.providers["gcp"]
+  gcp = jsondecode(file("${path.module}/../pubrules.json")).hosting.providers["gcp"]
 }
 
 module "site" {
@@ -496,7 +496,7 @@ jobs:
 - Every run starts with a fresh `terraform init` against the backend the
   stack names. A provider download can fail (GitHub's release downloads,
   releases.hashicorp.com's SHA256SUMS), so init is tried three times, 15 s
-  apart. With a provider mirror in pubkit.json, a fourth try installs every
+  apart. With a provider mirror in pubrules.json, a fourth try installs every
   provider from it, through a CLI configuration with only its
   `network_mirror`; the module's `.terraform.lock.hcl` still checks each
   archive. The service CI's backend-less init does the same.
@@ -533,8 +533,8 @@ such as `noindex, nofollow`, or `none`) is taken as not meant for search or
 sharing, such as a service's bare landing page: it still needs its language
 and title (WEB-PAGE-01, and WEB-PAGE-02's title), but not a description, a
 card or an image, and robots.txt may keep the preview bots from it. A rule that a site cannot meet yet takes an
-exception in `pubkit.json`, as the Rust crate standard's do (a rule, a
-reason, an until date); `pubkit conform` reads only its own rules'.
+exception in `pubrules.json`, as the Rust crate standard's do (a rule, a
+reason, an until date); `pubrules conform` reads only its own rules'.
 The rules live in `src/pubhost/site.py` as `RULES`, one function per
 family, so accessibility and other compliance checks join as new families.
 
@@ -544,7 +544,7 @@ its address into the [Post Inspector](https://www.linkedin.com/post-inspector/).
 ## Developing
 
     make venv         # the hash-locked environment, this checkout installed editable
-    make check        # what CI runs: ./pubkit sync --check and the suite
+    make check        # what CI runs: ./pubrules sync --check and the suite
 
 `.github/workflows/hosting.yml` runs what the Python suite does not: each
 module's `fmt`, `validate` and `terraform test`, the deploy-static scripts

@@ -18,7 +18,7 @@ from pubhost import dns as check
 
 scenarios("dns.feature")
 
-TESTDATA = Path(__file__).resolve().parents[2] / "terraform" / "testdata" / "pubkit.json"
+TESTDATA = Path(__file__).resolve().parents[2] / "terraform" / "testdata" / "pubrules.json"
 
 FAKE_DIG = f"""#!{sys.executable}
 import json, os, sys
@@ -90,14 +90,24 @@ def _hosting():
     return json.loads(TESTDATA.read_text())["hosting"]
 
 
-@given("pubkit.json has the hosting block the Terraform modules are tested with")
+@given("pubrules.json has the hosting block the Terraform modules are tested with")
 def testdata_config(repo):
-    (repo / "pubkit.json").write_text(TESTDATA.read_text())
+    (repo / "pubrules.json").write_text(TESTDATA.read_text())
+
+
+@given("pubrules.json is missing")
+def no_config(repo):
+    (repo / "pubrules.json").unlink()
+
+
+@given(parsers.parse('pubrules.json holds "{text}"'))
+def config_text(repo, text):
+    (repo / "pubrules.json").write_text(text)
 
 
 @given('every nameserver of "example.net" serves it alike')
 def example_net(dns):
-    """deSEC's nameservers, from pubkit.json, and Cloudflare's, which the
+    """deSEC's nameservers, from pubrules.json, and Cloudflare's, which the
     resolver finds: each serves every key and signs with its provider's."""
     keys = _hosting()["zones"]["example.net"]["dnssec"]["keys"]
     desec = ["ns1.desec.io.", "ns2.desec.org."]
@@ -119,7 +129,7 @@ def example_net(dns):
 
 @given('every nameserver of "example.org" serves it alike')
 def example_org(dns):
-    """Hetzner's external nameservers, from pubkit.json, unsigned."""
+    """Hetzner's external nameservers, from pubrules.json, unsigned."""
     servers = _hosting()["providers"]["hetzner"]["dns"]["external_nameservers"]
     records = {
         "example.org. NS": servers,
@@ -165,7 +175,7 @@ def lacks_keys(dns, server, provider):
     _edit(dns, change)
 
 
-@given(parsers.parse('"{server}" signs with a key pubkit.json does not pin'))
+@given(parsers.parse('"{server}" signs with a key pubrules.json does not pin'))
 def unpinned_signer(dns, server):
     def change(state):
         state["servers"][server]["signed_by"] = "c29tZXRoaW5nIGVsc2U="

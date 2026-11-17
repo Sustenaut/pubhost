@@ -1,7 +1,7 @@
 # Runs without credentials: both providers are mocked, with made-up
 # nameservers in place of the ones each would report. The providers' own
-# facts come from testdata/pubkit.json, as a root module's come from its
-# pubkit.json; none are written here.
+# facts come from testdata/pubrules.json, as a root module's come from its
+# pubrules.json; none are written here.
 
 mock_provider "hcloud" {
   mock_data "hcloud_zone" {
@@ -72,8 +72,8 @@ run "multi_provider" {
   command = apply
 
   variables {
-    hetzner    = jsondecode(file("../testdata/pubkit.json")).hosting.providers.hetzner
-    cloudflare = jsondecode(file("../testdata/pubkit.json")).hosting.providers.cloudflare
+    hetzner    = jsondecode(file("../testdata/pubrules.json")).hosting.providers.hetzner
+    cloudflare = jsondecode(file("../testdata/pubrules.json")).hosting.providers.cloudflare
   }
 
   assert {
@@ -177,7 +177,7 @@ run "no_external_nameservers" {
   command = apply
 
   variables {
-    cloudflare = jsondecode(file("../testdata/pubkit.json")).hosting.providers.cloudflare
+    cloudflare = jsondecode(file("../testdata/pubrules.json")).hosting.providers.cloudflare
   }
 
   assert {
@@ -192,8 +192,8 @@ run "nameservers_ttl" {
   command = plan
 
   variables {
-    hetzner         = jsondecode(file("../testdata/pubkit.json")).hosting.providers.hetzner
-    cloudflare      = jsondecode(file("../testdata/pubkit.json")).hosting.providers.cloudflare
+    hetzner         = jsondecode(file("../testdata/pubrules.json")).hosting.providers.hetzner
+    cloudflare      = jsondecode(file("../testdata/pubrules.json")).hosting.providers.cloudflare
     nameservers_ttl = 3600
   }
 
@@ -208,7 +208,7 @@ run "cloudflare_alone" {
 
   variables {
     hetzner    = null
-    cloudflare = jsondecode(file("../testdata/pubkit.json")).hosting.providers.cloudflare
+    cloudflare = jsondecode(file("../testdata/pubrules.json")).hosting.providers.cloudflare
   }
 
   assert {
@@ -239,9 +239,9 @@ run "keys_by_value" {
   command = plan
 
   variables {
-    hetzner    = jsondecode(file("../testdata/pubkit.json")).hosting.providers.hetzner
-    cloudflare = jsondecode(file("../testdata/pubkit.json")).hosting.providers.cloudflare
-    desec      = jsondecode(file("../testdata/pubkit.json")).hosting.providers.desec
+    hetzner    = jsondecode(file("../testdata/pubrules.json")).hosting.providers.hetzner
+    cloudflare = jsondecode(file("../testdata/pubrules.json")).hosting.providers.cloudflare
+    desec      = jsondecode(file("../testdata/pubrules.json")).hosting.providers.desec
   }
 
   assert {

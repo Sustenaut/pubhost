@@ -1,5 +1,5 @@
 # Runs without credentials: deSEC is mocked, with a made-up key and minimum
-# TTL. testdata/pubkit.json has one zone at deSEC, example.net, beside
+# TTL. testdata/pubrules.json has one zone at deSEC, example.net, beside
 # Cloudflare and signed by both; records and apex_nameservers stand in for
 # terraform/hosting's outputs.
 
@@ -18,7 +18,7 @@ mock_provider "desec" {
 }
 
 variables {
-  config = jsondecode(file("../testdata/pubkit.json")).hosting
+  config = jsondecode(file("../testdata/pubrules.json")).hosting
   records = {
     "example.eu" = { apex_a = { name = "@", type = "A", ttl = 300, values = ["192.0.2.1"] } }
     "example.net" = {
@@ -98,7 +98,7 @@ run "alone_and_unsigned" {
 
   variables {
     config = {
-      providers = { desec = jsondecode(file("../testdata/pubkit.json")).hosting.providers.desec }
+      providers = { desec = jsondecode(file("../testdata/pubrules.json")).hosting.providers.desec }
       zones     = { "example.net" = { dns = ["desec"] } }
     }
     apex_nameservers = { "example.net" = null }

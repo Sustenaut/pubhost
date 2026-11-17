@@ -13,8 +13,8 @@ mock_provider "hcloud" {
 variables {
   config = {
     providers = {
-      hetzner = jsondecode(file("../testdata/pubkit.json")).hosting.providers.hetzner
-      mailbox = jsondecode(file("../testdata/pubkit.json")).hosting.providers.mailbox
+      hetzner = jsondecode(file("../testdata/pubrules.json")).hosting.providers.hetzner
+      mailbox = jsondecode(file("../testdata/pubrules.json")).hosting.providers.mailbox
     }
     zones = {
       "example.eu" = {
@@ -39,6 +39,6 @@ run "no_cloudflare_configuration" {
 
   assert {
     condition     = output.nameservers["example.eu"] == sort(var.config.providers.hetzner.dns.external_nameservers)
-    error_message = "The registrar gets the external nameservers from pubkit.json."
+    error_message = "The registrar gets the external nameservers from pubrules.json."
   }
 }

@@ -2,8 +2,8 @@
 robots and other sites read them correctly.
 
 Each check belongs to a rule with a stable ID, so a repository can declare
-an exception for it in `pubkit.json` as for the Rust crate standard
-(`pubkit conform`). The rules grow by family: WEB-PAGE for what every page
+an exception for it in `pubrules.json` as for the Rust crate standard
+(`pubrules conform`). The rules grow by family: WEB-PAGE for what every page
 names about itself, WEB-OG for the card a shared link shows (LinkedIn,
 Facebook, Slack, WhatsApp...), WEB-ROBOTS for what robots.txt lets in. A
 later family (accessibility, say) is a new entry in RULES and a function in
@@ -258,7 +258,7 @@ def checks(root: Path, base: str | None) -> tuple[int, dict[str, list[str]]]:
     return count, out
 
 
-# A copy of pubkit's conform.today and conform.exceptions (pubkit 0.34.0),
+# A copy of pubrules' conform.today and conform.exceptions (pubrules 0.34.0),
 # so this module needs only the standard library: deploy-static runs it from
 # its own source with nothing installed.
 def today() -> datetime.date:
@@ -271,11 +271,11 @@ def exceptions(config: dict, known: set[str],
                family=lambda rule: str(rule).startswith("WEB-")) -> tuple[set[str], list[str], list[str]]:
     """The rule IDs waived, a description of each open exception, and the
     problems with the declarations. Only the exceptions whose rule is in
-    `family` are read: the site rules' (WEB-); the rest of pubkit.json's
-    exceptions are the Rust crate standard's, which `pubkit conform` reads."""
+    `family` are read: the site rules' (WEB-); the rest of pubrules.json's
+    exceptions are the Rust crate standard's, which `pubrules conform` reads."""
     waived, open_, problems = set(), [], []
     for i, e in enumerate(config.get("exceptions", [])):
-        where = f"pubkit.json exceptions[{i}]"
+        where = f"pubrules.json exceptions[{i}]"
         if isinstance(e, dict) and "rule" in e and not family(e["rule"]):
             continue
         if not isinstance(e, dict) or set(e) != {"rule", "reason", "until"}:
@@ -309,7 +309,7 @@ def run(root: Path, directory: Path, base: str | None) -> int:
         base = base if base.endswith("/") else base + "/"
     if not directory.is_dir():
         sys.exit(f"pubhost: {directory} is not a directory; build the site first")
-    config_file = root / "pubkit.json"
+    config_file = root / "pubrules.json"
     config = json.loads(config_file.read_text()) if config_file.is_file() else {}
     waived, open_, problems = exceptions(config, set(RULES))
     count, found = checks(directory, base)

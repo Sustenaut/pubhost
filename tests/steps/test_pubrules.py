@@ -1,5 +1,5 @@
-"""Steps for pubhost's use of pubkit: the names it imports, which its README
-lists and the installed pubkit must have."""
+"""Steps for pubhost's use of pubrules: the names it imports, which its README
+lists and the installed pubrules must have."""
 
 from __future__ import annotations
 
@@ -10,37 +10,37 @@ from pathlib import Path
 
 from pytest_bdd import parsers, scenarios, then, when
 
-scenarios("pubkit.feature")
+scenarios("pubrules.feature")
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "src" / "pubhost"
 
 
-@when("I read every import of pubkit in src/pubhost", target_fixture="imported")
+@when("I read every import of pubrules in src/pubhost", target_fixture="imported")
 def imports():
     found = set()
     for path in sorted(SOURCE.rglob("*.py")):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module \
-                    and node.module.split(".")[0] == "pubkit":
+                    and node.module.split(".")[0] == "pubrules":
                 found |= {f"{node.module}.{a.name}" for a in node.names}
             elif isinstance(node, ast.Import):
-                assert not any(a.name.split(".")[0] == "pubkit" for a in node.names), \
-                    f"{path}: import pubkit names nothing; take the names with from"
+                assert not any(a.name.split(".")[0] == "pubrules" for a in node.names), \
+                    f"{path}: import pubrules names nothing; take the names with from"
     assert found
     return found
 
 
 def listed():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    section = text.split("## What pubhost takes from pubkit", 1)[1].split("\n## ", 1)[0]
-    return set(re.findall(r"`(pubkit(?:\.[A-Za-z_]+)+)`", section))
+    section = text.split("## What pubhost takes from pubrules", 1)[1].split("\n## ", 1)[0]
+    return set(re.findall(r"`(pubrules(?:\.[A-Za-z_]+)+)`", section))
 
 
 @then(parsers.parse('each is one the README lists under "{heading}"'))
 def all_listed(imported, heading):
     missing = imported - listed()
-    assert not missing, f"imported from pubkit but not listed under {heading}: {sorted(missing)}"
+    assert not missing, f"imported from pubrules but not listed under {heading}: {sorted(missing)}"
 
 
 @then("the README lists none that pubhost does not import")
@@ -49,11 +49,11 @@ def none_extra(imported):
     assert not extra, f"listed but not imported: {sorted(extra)}"
 
 
-@then("the installed pubkit has each of them")
+@then("the installed pubrules has each of them")
 def installed(imported):
     for name in sorted(imported):
         module, _, attr = name.rpartition(".")
-        assert hasattr(importlib.import_module(module), attr), f"pubkit has no {name}"
+        assert hasattr(importlib.import_module(module), attr), f"pubrules has no {name}"
 
 
 # The hosting block's maps, whose keys are names the repository chooses
@@ -61,7 +61,7 @@ def installed(imported):
 # DNSSEC provider), not settings.
 NAMED = {("providers",), ("zones",), ("zones", "*", "sites"), ("providers", "*", "dkim"),
          ("zones", "*", "email", "verification"), ("zones", "*", "dnssec", "keys")}
-TESTDATA = ROOT / "terraform" / "testdata" / "pubkit.json"
+TESTDATA = ROOT / "terraform" / "testdata" / "pubrules.json"
 VARIABLES = ROOT / "terraform" / "hosting" / "variables.tf"
 
 
@@ -78,11 +78,11 @@ def settings_named(value, path=()):
     return out
 
 
-@when("pubkit's hosting check reads terraform/testdata/pubkit.json", target_fixture="checked")
+@when("pubrules' hosting check reads terraform/testdata/pubrules.json", target_fixture="checked")
 def hosting_check():
     import json  # noqa: PLC0415
 
-    from pubkit.hosting import settings  # noqa: PLC0415
+    from pubrules.hosting import settings  # noqa: PLC0415
     return settings(json.loads(TESTDATA.read_text(encoding="utf-8")))
 
 
@@ -97,4 +97,4 @@ def declared(checked):
     block = text.split('variable "config"', 1)[1].split('\nvariable "', 1)[0]
     attributes = set(re.findall(r"^\s*([a-z_]+)\s*=", block, re.MULTILINE))
     missing = settings_named(checked) - attributes
-    assert not missing, f"pubkit.hosting accepts settings the hosting module drops: {sorted(missing)}"
+    assert not missing, f"pubrules.hosting accepts settings the hosting module drops: {sorted(missing)}"

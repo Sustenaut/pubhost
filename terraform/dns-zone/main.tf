@@ -7,7 +7,7 @@
 # Each entry of var.records is one rrset in zone-file form. Hetzner takes it
 # as it is; Cloudflare takes one record per value, so the Cloudflare section
 # below splits them. The hosting module calls this once per zone in
-# pubkit.json, with the zone's DNS providers.
+# pubrules.json, with the zone's DNS providers.
 #
 # deSEC's records are written by terraform/desec-zones, apart because the
 # deSEC provider will not start without a token, so only a repository on
@@ -47,7 +47,7 @@ locals {
   # another provider's: Hetzner's own (konsoleH) does. Hetzner serves the
   # same zone from a second set of names too, which it takes as external,
   # and such a registrar lists those (dns.external_nameservers of the
-  # hetzner provider in pubkit.json) and Cloudflare's. The zone itself can
+  # hetzner provider in pubrules.json) and Cloudflare's. The zone itself can
   # only name the assigned ones (Hetzner refuses the others as "not
   # assigned to this zone"), so the apex NS rrset lists those and
   # Cloudflare's.
@@ -65,7 +65,7 @@ locals {
   ] : []
 
   # deSEC serves every zone from the same names, which its API does not
-  # report, so they come from pubkit.json; the zone and the registrar both
+  # report, so they come from pubrules.json; the zone and the registrar both
   # list them.
   desec_nameservers = local.on_desec ? sort([
     for ns in var.desec.dns.external_nameservers : "${trimsuffix(ns, ".")}."
@@ -75,7 +75,7 @@ locals {
   registrar_nameservers = sort(concat(local.hetzner_registrar_nameservers, local.cloudflare_nameservers, local.desec_nameservers))
 
   # Cloudflare publishes every other signer's keys next to its own (deSEC
-  # does the same in terraform/desec-zones). They are pinned in pubkit.json:
+  # does the same in terraform/desec-zones). They are pinned in pubrules.json:
   # neither provider rotates its keys on its own, so a key change is a
   # reviewed change to the config. A DNSKEY record gets an hour, as each
   # provider gives its own keys.
@@ -199,7 +199,7 @@ resource "cloudflare_zone_dnssec" "zone" {
 }
 
 # The other providers' keys, one record each, keyed by the key as
-# pubkit.json gives it ("flags 3 algorithm public-key").
+# pubrules.json gives it ("flags 3 algorithm public-key").
 resource "cloudflare_dns_record" "dnskeys" {
   for_each = toset(local.cloudflare_other_keys)
 

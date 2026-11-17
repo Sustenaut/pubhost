@@ -18,7 +18,7 @@
       "plugin": "cloudflare.pages",
       "paths": [
         "actions/deploy-static/",
-        "terraform/testdata/pubkit.json"
+        "terraform/testdata/pubrules.json"
       ],
       "mode": "required"
     },
@@ -26,7 +26,7 @@
       "plugin": "desec.dns",
       "paths": [
         "terraform/dns-zone/variables.tf",
-        "terraform/testdata/pubkit.json"
+        "terraform/testdata/pubrules.json"
       ],
       "mode": "required"
     },
@@ -67,7 +67,7 @@
       "plugin": "mailbox.smtp",
       "paths": [
         "terraform/hosting/variables.tf",
-        "terraform/testdata/pubkit.json"
+        "terraform/testdata/pubrules.json"
       ],
       "mode": "required"
     },
