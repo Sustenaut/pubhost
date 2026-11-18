@@ -14,7 +14,9 @@ Feature: pubhost uses pubrules as a library, through the names its README lists
     Then the installed pubrules has each of them
 
   Scenario: pubhost says its version
-    When I run pubhost "--version"
+    Given a scratch directory
+    And the program under test is "pubhost"
+    When I run "pubhost --version"
     Then it succeeds
     And it prints "pubhost "
 
