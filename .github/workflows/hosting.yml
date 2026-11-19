@@ -39,7 +39,7 @@ jobs:
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-providers-${{ matrix.module }}-${{ hashFiles(format('terraform/{0}/**/*.tf', matrix.module)) }}
-      - uses: Sustenaut/pubrules/actions/terraform-init@2fe559caa00c029d9be864faa7f7cc20cd234d0e # v0.43.0
+      - uses: Sustenaut/pubrules/actions/terraform-init@36b8b556ff838eb1e24c4e995350f10fdbdf26f3 # v0.45.0
         with:
           dir: terraform/${{ matrix.module }}
           args: -backend=false -input=false

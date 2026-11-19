@@ -1,17 +1,18 @@
-"""Steps for `pubhost dns check`, against a fake `dig` and `delv` on PATH
-that answer from a JSON file: each nameserver's records, whether it serves
-the zone, and the key it signs with. The fake delv validates an answer
-when the nameserver's signing key is among the trust anchors it is given,
-and records what it was asked."""
+"""Steps for `pubhost dns check`, against a fake `dig` and `delv` among
+pubtest's stand-ins that answer from a JSON file: each nameserver's records,
+whether it serves the zone, and the key it signs with. The fake delv
+validates an answer when the nameserver's signing key is among the trust
+anchors it is given. Each run is recorded in the stand-ins' log, so
+pubtest's stand-in steps read them."""
 
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
 import pytest
+from pubtest.steps.standins import standins
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from pubhost import dns as check
@@ -24,6 +25,8 @@ FAKE_DIG = f"""#!{sys.executable}
 import json, os, sys
 state = json.load(open(os.environ["FAKE_DNS"]))
 args = sys.argv[1:]
+with open(os.environ["FAKE_DNS_LOG"], "a") as log:
+    log.write(json.dumps({{"name": "dig", "args": args}}) + "\\n")
 if "+short" in args:
     print("\\n".join(state["resolved"]))
     sys.exit(0)
@@ -45,15 +48,13 @@ for value in values:
 
 FAKE_DELV = f"""#!{sys.executable}
 import json, os, sys
-path = os.environ["FAKE_DNS"]
-state = json.load(open(path))
+state = json.load(open(os.environ["FAKE_DNS"]))
 args = sys.argv[1:]
+with open(os.environ["FAKE_DNS_LOG"], "a") as log:
+    log.write(json.dumps({{"name": "delv", "args": args}}) + "\\n")
 anchors = open(args[args.index("-a") + 1]).read()
 server = next(a[1:] for a in args if a.startswith("@"))
 name, rtype = args[args.index("-q") + 1], args[args.index("-t") + 1]
-state["delv"].append({{"server": server, "name": name, "type": rtype,
-                      "root": next(a for a in args if a.startswith("+root="))}})
-json.dump(state, open(path, "w"))
 at = state["servers"].get(server, {{}})
 if not at.get("serves") or not at.get("signed_by") or at["signed_by"] not in anchors:
     print(f";; validating {{name}}/{{rtype}}: got insecure response; parent indicates it should be secure")
@@ -66,17 +67,16 @@ else:
 
 
 @pytest.fixture
-def dns(tmp_path, env):
-    """The fake DNS's state file, with `dig` and `delv` on PATH."""
-    bin_dir = tmp_path / "bin"
-    bin_dir.mkdir()
+def dns(pubtest_ctx, tmp_path, monkeypatch):
+    """The fake DNS's state file, with `dig` and `delv` among the stand-ins."""
+    found = standins(pubtest_ctx, tmp_path)
     for name, text in (("dig", FAKE_DIG), ("delv", FAKE_DELV)):
-        (bin_dir / name).write_text(text)
-        (bin_dir / name).chmod(0o755)
+        (found.bin / name).write_text(text)
+        (found.bin / name).chmod(0o755)
     state = tmp_path / "dns.json"
-    state.write_text(json.dumps({"resolved": [], "servers": {}, "delv": []}))
-    env["FAKE_DNS"] = str(state)
-    env["PATH"] = f"{bin_dir}{os.pathsep}{os.environ['PATH']}"
+    state.write_text(json.dumps({"resolved": [], "servers": {}}))
+    monkeypatch.setenv("FAKE_DNS", str(state))
+    monkeypatch.setenv("FAKE_DNS_LOG", str(found.log))
     return state
 
 
@@ -88,21 +88,6 @@ def _edit(dns, change):
 
 def _hosting():
     return json.loads(TESTDATA.read_text())["hosting"]
-
-
-@given("pubrules.json has the hosting block the Terraform modules are tested with")
-def testdata_config(repo):
-    (repo / "pubrules.json").write_text(TESTDATA.read_text())
-
-
-@given("pubrules.json is missing")
-def no_config(repo):
-    (repo / "pubrules.json").unlink()
-
-
-@given(parsers.parse('pubrules.json holds "{text}"'))
-def config_text(repo, text):
-    (repo / "pubrules.json").write_text(text)
 
 
 @given('every nameserver of "example.net" serves it alike')
@@ -182,38 +167,26 @@ def unpinned_signer(dns, server):
     _edit(dns, change)
 
 
-@given("dig is not installed")
-def no_dig(dns, env):
-    bin_dir = dns.parent / "bin"
-    (bin_dir / "dig").unlink()
-    env["PATH"] = str(bin_dir)
-
-
-def _asked(dns):
-    return json.loads(dns.read_text())["delv"]
-
-
-@then("delv was not run")
-def no_delv(dns):
-    assert _asked(dns) == []
+def _asked(pubtest_ctx):
+    """What each run of delv asked: the nameserver, the name and the root."""
+    asked = []
+    for args in pubtest_ctx.standins.runs("delv"):
+        asked.append({"server": next(a[1:] for a in args if a.startswith("@")), "name": args[args.index("-q") + 1],
+                      "root": next(a for a in args if a.startswith("+root="))})
+    return asked
 
 
 @then(parsers.parse('delv asked each of the {count:d} nameservers alone for a name that does not exist, '
                     'with "{zone}" as its root'))
-def asked_missing(dns, count, zone):
-    asked = [q for q in _asked(dns) if q["name"].startswith("pubhost-check-")]
+def asked_missing(pubtest_ctx, count, zone):
+    asked = [q for q in _asked(pubtest_ctx) if q["name"].startswith("pubhost-check-")]
     assert len({q["server"] for q in asked}) == count == len(asked), asked
     assert len({q["name"] for q in asked}) == 1, asked
     assert all(q["name"].endswith(f".{zone}.") and q["root"] == f"+root={zone}." for q in asked), asked
 
 
-@then(parsers.parse('the rrsets compared for "{zone}" are "{expected}"'))
-def compared(zone, expected):
+@when(parsers.parse('the rrsets to compare for "{zone}" are listed'))
+def compared(ctx, zone):
     hosting = _hosting()
-    wanted = check.rrsets(hosting["zones"][zone], hosting["providers"], [])
-    assert [f"{name} {rtype}" for name, rtype in wanted] == expected.split(", ")
-
-
-@then(parsers.parse('stderr does not mention "{text}"'))
-def stderr_lacks(result, text):
-    assert text not in result.stderr, result.stderr
+    ctx.attempt(lambda: ", ".join(f"{name} {rtype}" for name, rtype in
+                                  check.rrsets(hosting["zones"][zone], hosting["providers"], [])))

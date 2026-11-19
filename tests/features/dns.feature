@@ -9,11 +9,13 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
   The check only reads, through dig and delv.
 
   Background:
-    Given pubrules.json has the hosting block the Terraform modules are tested with
+    Given a scratch directory
+    And the program under test is "pubhost"
+    And a file "pubrules.json" copied from "terraform/testdata/pubrules.json"
 
   Scenario: A signed zone whose nameservers agree and each validate passes
     Given every nameserver of "example.net" serves it alike
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it succeeds
     And it prints "agree at 4 nameservers: ns1.cloudflare.example., ns1.desec.io., ns2.cloudflare.example., ns2.desec.org."
     And it prints "every nameserver serves the 3 pinned keys and validates alone"
@@ -21,18 +23,19 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
 
   Scenario: An unsigned zone is compared, and nothing is validated
     Given every nameserver of "example.org" serves it alike
-    When I run pubhost "dns" "check" "example.org"
+    When I run "pubhost dns check example.org"
     Then it succeeds
     And it prints "agree at 3 nameservers"
-    And delv was not run
+    And "delv" was not run
 
   Scenario: Every rrset the hosting block describes is compared
-    Then the rrsets compared for "example.eu" are "@ NS, @ MX, @ TXT, _dmarc TXT, mbo0001._domainkey CNAME, mbo0002._domainkey CNAME, mbo0003._domainkey CNAME, mbo0004._domainkey CNAME, f67e29eb00a65673481c0f9731bc90e0c6f94fd3 TXT, @ A, @ AAAA, blog CNAME, pub CNAME"
+    When the rrsets to compare for "example.eu" are listed
+    Then the result is "@ NS, @ MX, @ TXT, _dmarc TXT, mbo0001._domainkey CNAME, mbo0002._domainkey CNAME, mbo0003._domainkey CNAME, mbo0004._domainkey CNAME, f67e29eb00a65673481c0f9731bc90e0c6f94fd3 TXT, @ A, @ AAAA, blog CNAME, pub CNAME"
 
   Scenario: A nameserver with another answer fails the check
     Given every nameserver of "example.net" serves it alike
     And "ns2.desec.org." answers "example.net. A" with "192.0.2.9"
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "example.net. A differs between nameservers"
     And stderr mentions "ns2.desec.org.: 192.0.2.9"
@@ -40,7 +43,7 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
   Scenario: A nameserver a provider lists, but the configuration does not, is asked too
     Given every nameserver of "example.net" serves it alike
     And "ns1.desec.io." answers "example.net. NS" with "ns1.cloudflare.example., ns2.cloudflare.example., ns1.desec.io., ns2.desec.org., ns3.desec.example."
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "ns3.desec.example. does not serve example.net"
 
@@ -49,7 +52,7 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
     And "ns1.desec.io." answers "example.net. SOA" with "get.desec.io. get.desec.io. 2026105481 86400 3600 2419200 3600"
     And "ns2.desec.org." answers "example.net. SOA" with "get.desec.io. get.desec.io. 2026105480 86400 3600 2419200 3600"
     And "ns2.desec.org." answers "example.net. A" with "192.0.2.9"
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "ns2.desec.org. serves serial 2026105480 of the zone, older than 2026105481 at the other nameservers of get.desec.io.: it has not caught up with the last change yet"
     And stderr does not mention "ns1.desec.io. serves serial"
@@ -57,7 +60,7 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
   Scenario: A name in a nameserver's answer that is not a host name is never asked
     Given every nameserver of "example.net" serves it alike
     And "ns1.desec.io." answers "example.net. NS" with "ns1.cloudflare.example., ns2.cloudflare.example., ns1.desec.io., ns2.desec.org., -fevil."
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "example.net. NS differs between nameservers"
     And stderr does not mention "-fevil. does not serve"
@@ -65,28 +68,28 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
   Scenario: A nameserver that does not serve the zone fails the check
     Given every nameserver of "example.net" serves it alike
     And "ns2.cloudflare.example." does not serve the zone
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "ns2.cloudflare.example. does not serve example.net (status REFUSED, not authoritative)"
 
   Scenario: A key pubrules.json does not pin fails the check
     Given every nameserver of "example.net" serves it alike
     And "ns1.cloudflare.example." also serves the key "257 3 13 c29tZXRoaW5nIGVsc2U="
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "ns1.cloudflare.example. serves a key pubrules.json does not pin: 257 3 13 c29tZXRoaW5nIGVsc2U="
 
   Scenario: A provider that does not publish the other's keys fails the check
     Given every nameserver of "example.net" serves it alike
     And "ns1.desec.io." does not serve the cloudflare keys
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "ns1.desec.io. does not serve the pinned key 256 3 13"
 
   Scenario: A nameserver whose answers do not validate against the pinned keys fails the check
     Given every nameserver of "example.net" serves it alike
     And "ns2.desec.org." signs with a key pubrules.json does not pin
-    When I run pubhost "dns" "check" "example.net"
+    When I run "pubhost dns check example.net"
     Then it fails
     And stderr mentions "ns2.desec.org.: example.net. A does not validate against the pinned keys"
     And stderr mentions "ns2.desec.org.: a name that does not exist does not validate"
@@ -94,38 +97,44 @@ Feature: pubhost dns check compares a zone's nameservers and validates each one 
   Scenario: Another rrset can be compared with --record
     Given every nameserver of "example.org" serves it alike
     And "helium.ns.hetzner.de." answers "mail.example.org. MX" with "10 mail.example.net."
-    When I run pubhost "dns" "check" "example.org" "--record" "mail/MX"
+    When I run "pubhost dns check example.org --record mail/MX"
     Then it fails
     And stderr mentions "mail.example.org. MX differs between nameservers"
 
   Scenario Outline: A check pubrules cannot run stops it with a message
     Given every nameserver of "example.org" serves it alike
-    When I run pubhost <args>
+    When I run "pubhost <args>"
     Then it fails
     And stderr mentions "<message>"
 
     Examples:
-      | args                                         | message                                          |
-      | "dns" "check" "example.com"                  | has no zone example.com; it has example.eu       |
-      | "dns" "check" "example.org" "--record" "mx"  | --record mx must be NAME/TYPE                    |
-      | "dns" "check" "example.org" "--record=-f/etc/passwd/A"   | is not a DNS name pubhost dns check asks about |
-      | "dns" "check" "example.org" "--record" "www/A;id" | is not a DNS record type                    |
+      | args                                           | message                                        |
+      | dns check example.com                          | has no zone example.com; it has example.eu     |
+      | dns check example.org --record mx              | --record mx must be NAME/TYPE                  |
+      | dns check example.org --record=-f/etc/passwd/A | is not a DNS name pubhost dns check asks about |
+      | dns check example.org --record www/A;id        | is not a DNS record type                       |
 
   Scenario: The check needs dig
     Given every nameserver of "example.org" serves it alike
-    And dig is not installed
-    When I run pubhost "dns" "check" "example.org"
+    And "dig" is not installed
+    When I run "pubhost dns check example.org"
     Then it fails
     And stderr mentions "dns check needs dig, from BIND 9"
 
-  Scenario Outline: A pubrules.json the check can't read stops it with a message
-    Given pubrules.json <state>
-    When I run pubhost "dns" "check" "example.org"
+  Scenario: Without a pubrules.json the check stops with a message
+    Given the file "pubrules.json" is removed
+    When I run "pubhost dns check example.org"
     Then it fails
-    And stderr mentions "<message>"
+    And stderr mentions "no pubrules.json in"
 
-    Examples:
-      | state           | message                                      |
-      | is missing      | no pubrules.json in                          |
-      | holds "{"       | pubrules.json is not JSON                    |
-      | holds "[]"      | pubrules.json must be a JSON object          |
+  Scenario: A pubrules.json that is not JSON stops the check with a message
+    Given a file "pubrules.json" holding "{"
+    When I run "pubhost dns check example.org"
+    Then it fails
+    And stderr mentions "pubrules.json is not JSON"
+
+  Scenario: A pubrules.json that is not an object stops the check with a message
+    Given a file "pubrules.json" holding "[]"
+    When I run "pubhost dns check example.org"
+    Then it fails
+    And stderr mentions "pubrules.json must be a JSON object"
