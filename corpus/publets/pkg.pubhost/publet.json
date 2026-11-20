@@ -2,7 +2,7 @@
   "claims": {
     "identity": {
       "class": "archival",
-      "content": "pubhost 0.1.1 is released as v0.1.1 from commit 6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd.",
+      "content": "pubhost 0.2.0 is released as v0.2.0 from commit efc664ceb41f344f910c94258eec1adfe2d23c25.",
       "data": {
         "columns": [
           {
@@ -27,25 +27,25 @@
         "rows": [
           [
             "pubhost",
-            "0.1.1",
+            "0.2.0",
             "pubhost --version",
-            "pubhost 0.1.1",
-            "v0.1.1",
-            "6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd"
+            "pubhost 0.2.0",
+            "v0.2.0",
+            "efc664ceb41f344f910c94258eec1adfe2d23c25"
           ]
         ]
       },
-      "scope": "the published release v0.1.1 of pubhost",
+      "scope": "the published release v0.2.0 of pubhost",
       "sources": [
         {
           "ref": "pubhost",
-          "revision": "6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd"
+          "revision": "efc664ceb41f344f910c94258eec1adfe2d23c25"
         }
       ]
     },
     "release": {
       "class": "archival",
-      "content": "pubhost 0.1.1 was released on 2026-11-12 from commit 6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd with these changes.",
+      "content": "pubhost 0.2.0 was released on 2026-11-20 from commit efc664ceb41f344f910c94258eec1adfe2d23c25 with these changes.",
       "data": {
         "columns": [
           {
@@ -57,32 +57,28 @@
         ],
         "rows": [
           [
+            "changed",
+            "pubkit is now pubrules: pubhost depends on pubrules 0.43.0 or later instead of pubkit and reads the hosting block from the repository's pubrules.json"
+          ],
+          [
             "internal",
-            "hosting.yml's terraform init runs through pubkit's actions/terraform-init (pubkit 0.35.1) in place of its own retry loop, with the same three tries 10 s apart; pubhost moves to pubkit 0.35.1"
-          ],
-          [
-            "fixed",
-            "dns-zone works with cloudflare provider 5.29, which dropped foundation_dns from cloudflare_zone_dns_settings; the modules now require ~> 5.29"
-          ],
-          [
-            "added",
-            "terraform.yml takes a runs-on input, the runner label its plan and apply jobs run on (ubuntu-latest by default), so a stack with self-hosted runners applies on them"
+            "The suite's scenarios are Given/When/Then on pubtest's steps"
           ]
         ]
       },
       "depends": [
         "#identity"
       ],
-      "scope": "the published release v0.1.1 of pubhost",
+      "scope": "the published release v0.2.0 of pubhost",
       "sources": [
         {
           "ref": "pubhost",
-          "revision": "6c14cb03c86a46e6be5800ca913eb48e6e0ab0cd"
+          "revision": "efc664ceb41f344f910c94258eec1adfe2d23c25"
         }
       ]
     }
   },
-  "created": "2026-11-12T00:00:00Z",
+  "created": "2026-11-20T00:00:00Z",
   "sections": [
     {
       "heading": "Identity",
