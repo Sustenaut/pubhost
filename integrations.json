@@ -33,7 +33,8 @@
     {
       "plugin": "github.actions-oidc",
       "paths": [
-        ".github/workflows/terraform.yml"
+        ".github/workflows/terraform.yml",
+        ".github/workflows/wheel.yml"
       ],
       "mode": "required"
     },
