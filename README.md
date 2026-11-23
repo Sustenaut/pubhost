@@ -7,7 +7,9 @@ Hetzner, Cloudflare, deSEC, Google Cloud and mailbox.org (`terraform/`); a
 live check across a zone's nameservers (`pubhost dns check`); a reusable
 workflow that applies a stack from CI (`terraform.yml`); and the actions that
 build an image (`actions/docker-build`) and deploy a static site
-(`actions/deploy-static`), which first runs `pubhost site check`.
+(`actions/deploy-static`), which first runs `pubhost site check`; and the
+action that fails a pull request which deletes Terraform resources without the
+label that allows it (`actions/terraform-deletes`).
 
 What runs inside one repository about itself stays in
 [pubrules](https://github.com/Sustenaut/pubrules): `pubrules sync`, which checks the
@@ -17,6 +19,7 @@ and `job-service-terraform.yml` checks a stack without a backend.
 
     pubhost dns check ZONE [--record NAME/TYPE...]
     pubhost site check DIR [--url URL]
+    pubhost terraform deletes BASE HEAD [--labelled]
     pubhost --version
 
 ## Installing
@@ -59,8 +62,9 @@ Both read `terraform/testdata/pubrules.json`: the modules' tests run on it, and
 `tests/features/pubrules.feature` checks that pubrules accepts it and that every
 setting it names is one `terraform/hosting`'s `config` declares.
 
-`src/pubhost/site.py` stays standard-library only, because deploy-static runs
-it from its own source with nothing installed. It carries a copy of pubrules'
+`src/pubhost/site.py` and `src/pubhost/terraform_deletes.py` stay
+standard-library only, because deploy-static and terraform-deletes run them
+from their own source with nothing installed. It carries a copy of pubrules'
 `conform.exceptions`, marked as one, to read the site rules' exceptions.
 
 ## Hosting modules
@@ -313,6 +317,10 @@ own modules, which only a repository on Google Cloud or deSEC takes.
   and `docker push`. Give each image its own `scope`. A cached layer keeps
   the packages it was built with until something before it changes;
   `no-cache: true` takes the current ones.
+- **`actions/terraform-deletes`:** fails a pull request that deletes a
+  Terraform resource or module block when it lacks the label
+  `terraform-destroy` (`label` names another), the same label
+  `terraform.yml` asks for after the merge. See "Terraform from CI".
 - **`actions/deploy-static`:** deploys a directory to a server over rsync
   (`deploy-key`, `deploy-target`, and `known-hosts`, the server's pinned
   host key; without it the key is scanned on every run), to Cloudflare
@@ -493,6 +501,50 @@ jobs:
   deletes anything, replacements included, is applied only when the pull
   request merged as that commit has the label `terraform-destroy`; either
   way the job lists what it deletes.
+- `actions/terraform-deletes` checks a pull request for that label before the merge, so
+  `terraform.yml` does not find out after it. It reads no plan: `pubhost
+  terraform deletes BASE HEAD` compares the `.tf` files of the pull
+  request's base and head, per directory, and lists every `resource` or
+  `module` block the head no longer has, except an old address a `moved`
+  block names and a block a `removed` block with `destroy = false` only
+  forgets. It fails on any, unless the pull request has the label, so it
+  needs no credentials and no state, and a pull request's code never runs
+  with the account's. It cannot see a delete that removes no block (a
+  changed `for_each` or `count`, a changed name, a replacement): the check
+  of the real plan after the merge stays. Run it from a workflow of the
+  stack's repository for pull requests and the merge queue, and require
+  its job in the repository's ruleset:
+
+  ```yaml
+  name: terraform-pr
+  on:
+    pull_request: { types: [opened, synchronize, reopened, labeled, unlabeled] }
+    merge_group:
+  permissions: { contents: read }
+  concurrency: { group: terraform-pr-${{ github.ref }}, cancel-in-progress: true }
+  jobs:
+    deletes:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@<commit> # vX
+        - uses: Sustenaut/pubhost/actions/terraform-deletes@<commit> # vX.Y.Z
+  ```
+
+  The job needs `contents: read` and nothing else, and it never runs the
+  pull request's code, only reads its files, so the checkout keeps its token
+  (a private repository's base commit is fetched with it). The action
+  fetches the base commit only if the checkout lacks it; `fetch-depth: 0`
+  on the checkout is the alternative. Adding or removing the label runs it
+  again. In the merge queue the pull request's label is not in the event,
+  so the job passes there: the pull request's own run decided.
+
+  What it reads is the code: comments (`/* */`, `#`, `//`) and heredoc
+  bodies are left out, so a resource kept inside one still counts as
+  deleted, and one that was only ever in one is not. A limit: a pull request
+  can edit the workflow that runs the check, so it is a guard against
+  mistakes, not against a pull request meant to get round it. Closing that
+  takes a ruleset's required workflow from another repository, a decision
+  for the organization's rulesets (release-state), not for this action.
 - Every run starts with a fresh `terraform init` against the backend the
   stack names. A provider download can fail (GitHub's release downloads,
   releases.hashicorp.com's SHA256SUMS), so init is tried three times, 15 s
