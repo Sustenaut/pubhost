@@ -58,18 +58,24 @@ def forgotten(text: str) -> set[str]:
     return found
 
 
-# A revision as git names one (a commit, a tag, a branch, HEAD~1), never an
-# option: it cannot start with "-".
+# What may reach git as a revision: a name (a commit, a tag, a branch,
+# HEAD~1), never an option, so it cannot start with "-".
 REVISION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._/@^~-]*")
+HASH = re.compile(r"[0-9a-f]{40,64}")
+
+
+def checked(revision: str) -> str:
+    """A revision, as REVISION allows; anything else stops the check."""
+    if not REVISION.fullmatch(revision):
+        sys.exit(f"pubhost: {revision!r} is not a revision")
+    return revision
 
 
 def commit(revision: str) -> str:
     """The commit a revision names, as its full hash: later git calls take only
     that, so nothing given on the command line reaches git as anything else."""
-    if not REVISION.fullmatch(revision):
-        sys.exit(f"pubhost: {revision!r} is not a revision")
-    sha = git("rev-parse", "--verify", "--end-of-options", f"{revision}^{{commit}}").strip()
-    if not re.fullmatch(r"[0-9a-f]{40,64}", sha):
+    sha = git("rev-parse", "--verify", "--end-of-options", f"{checked(revision)}^{{commit}}").strip()
+    if not HASH.fullmatch(sha):
         sys.exit(f"pubhost: {revision!r} does not name a commit")
     return sha
 
