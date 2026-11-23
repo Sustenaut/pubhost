@@ -194,3 +194,13 @@ Feature: pubhost terraform deletes finds the resources a change takes out of a s
     When I run "pubhost terraform deletes base head"
     Then it succeeds
     And it prints "deletes no resource or module block"
+
+  Scenario: A revision that is an option is refused
+    When I run "pubhost terraform deletes -- --output=leak head"
+    Then it fails
+    And stderr mentions "is not a revision"
+
+  Scenario: A revision that names no commit is refused
+    When I run "pubhost terraform deletes base nothing-by-that-name"
+    Then it fails
+    And stderr mentions "pubhost:"

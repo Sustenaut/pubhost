@@ -58,6 +58,22 @@ def forgotten(text: str) -> set[str]:
     return found
 
 
+# A revision as git names one (a commit, a tag, a branch, HEAD~1), never an
+# option: it cannot start with "-".
+REVISION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._/@^~-]*")
+
+
+def commit(revision: str) -> str:
+    """The commit a revision names, as its full hash: later git calls take only
+    that, so nothing given on the command line reaches git as anything else."""
+    if not REVISION.fullmatch(revision):
+        sys.exit(f"pubhost: {revision!r} is not a revision")
+    sha = git("rev-parse", "--verify", "--end-of-options", f"{revision}^{{commit}}").strip()
+    if not re.fullmatch(r"[0-9a-f]{40,64}", sha):
+        sys.exit(f"pubhost: {revision!r} does not name a commit")
+    return sha
+
+
 def git(*args: str) -> str:
     done = subprocess.run(["git", *args], capture_output=True, text=True, check=False)
     if done.returncode:
@@ -82,6 +98,7 @@ def directories(revision: str, wanted: set[str]) -> dict[str, str]:
 
 def deletes(base: str, head: str) -> list[tuple[str, str]]:
     """(directory, address) for each resource or module the change deletes."""
+    base, head = commit(base), commit(head)
     changed = git("diff", "--no-renames", "--name-only", base, head, "--", "*.tf").splitlines()
     wanted = {str(PurePosixPath(path).parent) for path in changed}
     before = directories(base, wanted)
