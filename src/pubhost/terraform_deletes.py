@@ -133,9 +133,13 @@ def checked(revision: str) -> str:
 
 def commit(revision: str) -> str:
     """The commit a revision names, as its full hash: later git calls take only
-    that, so nothing given on the command line reaches git as anything else."""
-    sha = git("rev-parse", "--verify", "--end-of-options", f"{checked(revision)}^{{commit}}").strip()
-    if not HASH.fullmatch(sha):
+    that. The name goes to git on its standard input (cat-file --batch-check
+    reads object names there), never as an argument, so it cannot be read as
+    an option."""
+    done = subprocess.run(["git", "cat-file", "--batch-check=%(objecttype) %(objectname)"],
+                          input=f"{checked(revision)}^{{commit}}\n", capture_output=True, text=True, check=False)
+    kind, _, sha = done.stdout.strip().partition(" ")
+    if done.returncode or kind != "commit" or not HASH.fullmatch(sha):
         sys.exit(f"pubhost: {revision!r} does not name a commit")
     return sha
 
