@@ -195,6 +195,104 @@ Feature: pubhost terraform deletes finds the resources a change takes out of a s
     Then it succeeds
     And it prints "deletes no resource or module block"
 
+  Scenario: A resource kept only in a # comment is still a delete
+    Given a file "infra/main.tf" holding:
+      """
+      resource "google_storage_bucket" "kept" {
+        name = "kept"
+      }
+
+      # resource "google_storage_bucket" "extra" {
+      #   name = "extra"
+      # }
+      """
+    And a commit tagged "head"
+    When I run "pubhost terraform deletes base head"
+    Then it fails
+    And it prints "deletes google_storage_bucket.extra in infra/"
+
+  Scenario: A resource kept only in a block comment is still a delete
+    Given a file "infra/main.tf" holding:
+      """
+      resource "google_storage_bucket" "kept" {
+        name = "kept"
+      }
+
+      /*
+      resource "google_storage_bucket" "extra" {
+        name = "extra"
+      }
+      */
+      """
+    And a commit tagged "head"
+    When I run "pubhost terraform deletes base head"
+    Then it fails
+    And it prints "deletes google_storage_bucket.extra in infra/"
+
+  Scenario: A resource kept only in a heredoc is still a delete
+    Given a file "infra/main.tf" holding:
+      """
+      resource "google_storage_bucket" "kept" {
+        name = "kept"
+      }
+
+      resource "google_compute_instance" "host" {
+        user_data = <<-EOT
+          resource "google_storage_bucket" "extra" {
+          }
+        EOT
+      }
+      """
+    And a commit tagged "head"
+    When I run "pubhost terraform deletes base head"
+    Then it fails
+    And it prints "deletes google_storage_bucket.extra in infra/"
+
+  Scenario: A resource that was only in a comment is not a delete when the comment goes
+    Given a file "infra/main.tf" holding:
+      """
+      resource "google_storage_bucket" "kept" {
+        name = "kept"
+      }
+
+      resource "google_storage_bucket" "extra" {
+        name = "extra"
+      }
+
+      # resource "google_storage_bucket" "old" {
+      # }
+      """
+    And a commit tagged "middle"
+    And a file "infra/main.tf" holding:
+      """
+      resource "google_storage_bucket" "kept" {
+        name = "kept"
+      }
+
+      resource "google_storage_bucket" "extra" {
+        name = "extra"
+      }
+      """
+    And a commit tagged "head"
+    When I run "pubhost terraform deletes middle head"
+    Then it succeeds
+
+  Scenario: A slash-star inside a string does not start a comment
+    Given a file "infra/main.tf" holding:
+      """
+      resource "google_storage_bucket" "kept" {
+        name = "kept"
+        arn  = "arn:aws:s3:::bucket/*"
+      }
+
+      resource "google_storage_bucket" "extra" {
+        name = "extra"
+      }
+      """
+    And a commit tagged "head"
+    When I run "pubhost terraform deletes base head"
+    Then it succeeds
+
   Scenario: A revision that is an option is refused
     When I run "pubhost terraform deletes -- --output=leak head"
     Then it fails

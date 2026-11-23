@@ -42,14 +42,74 @@ def reference(text: str) -> str:
     return ".".join(text.split(".")[:2])
 
 
+HEREDOC = re.compile(r"<<-?([A-Za-z_][A-Za-z0-9_]*)[ \t]*\n")
+
+
+def string_end(text: str, start: int) -> int:
+    """Where the quoted string starting at `start` ends: the index of its
+    closing quote, skipping escapes and what lies inside ${...} and %{...}."""
+    depth = 0
+    index = start + 1
+    while index < len(text):
+        char = text[index]
+        if depth == 0 and char == "\\":
+            index += 2
+            continue
+        if depth == 0 and char == '"':
+            return index
+        if text.startswith(("$${", "%%{"), index):
+            index += 3
+            continue
+        if text.startswith(("${", "%{"), index):
+            depth += 1
+            index += 2
+            continue
+        if depth and char == "{":
+            depth += 1
+        elif depth and char == "}":
+            depth -= 1
+        index += 1
+    return len(text)
+
+
+def code(text: str) -> str:
+    """The text without comments (/* */, # and //) and heredoc bodies, which
+    may hold a resource block as text that Terraform never reads. Quoted
+    strings are kept whole, so a "/*" or "#" in one starts nothing."""
+    out = []
+    index = 0
+    while index < len(text):
+        char = text[index]
+        heredoc = HEREDOC.match(text, index) if text.startswith("<<", index) else None
+        if char == '"':
+            end = string_end(text, index)
+            out.append(text[index:end + 1])
+            index = end + 1
+        elif heredoc:
+            closing = re.compile(rf"^[ \t]*{re.escape(heredoc.group(1))}[ \t]*$", re.MULTILINE).search(text, heredoc.end())
+            out.append(text[index:heredoc.end()])
+            index = closing.end() if closing else len(text)
+        elif text.startswith("/*", index):
+            end = text.find("*/", index + 2)
+            index = len(text) if end < 0 else end + 2
+        elif char == "#" or text.startswith("//", index):
+            end = text.find("\n", index)
+            index = len(text) if end < 0 else end
+        else:
+            out.append(char)
+            index += 1
+    return "".join(out)
+
+
 def blocks(text: str) -> set[str]:
-    return {address(kind, first, second) for kind, first, second in BLOCK.findall(text)}
+    return {address(kind, first, second) for kind, first, second in BLOCK.findall(code(text))}
 
 
 def forgotten(text: str) -> set[str]:
     """What the files' moved and removed blocks leave out of the deletes: the
     old address of a move, and what a removed block keeps (destroy = false)."""
     found = set()
+    text = code(text)
     for body in MOVED.findall(text):
         found |= {reference(m) for m in FROM.findall(body)}
     for body in REMOVED.findall(text):

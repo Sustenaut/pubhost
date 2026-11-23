@@ -13,12 +13,12 @@
 #     pull_request: { types: [opened, synchronize, reopened, labeled, unlabeled] }
 #     merge_group:
 #   permissions: { contents: read }
+#   concurrency: { group: terraform-pr-${{ github.ref }}, cancel-in-progress: true }
 #   jobs:
 #     deletes:
 #       runs-on: ubuntu-latest
 #       steps:
 #         - uses: actions/checkout@<commit> # vX
-#           with: { persist-credentials: false }
 #         - uses: Sustenaut/pubhost/actions/terraform-deletes@<commit> # vX.Y.Z
 #
 # Adding or removing the label runs it again. In the merge queue the pull
@@ -50,8 +50,9 @@ runs:
           echo "::notice::$EVENT: the pull request's own run decided"
           exit 0
         fi
-        # The base commit, which a shallow checkout lacks.
-        git fetch --no-tags --depth=1 origin "$BASE"
+        # The base commit, which a shallow checkout lacks (a checkout with
+        # fetch-depth: 0 has it, and nothing is fetched).
+        git cat-file -e "$BASE^{commit}" 2>/dev/null || git fetch --no-tags --depth=1 origin "$BASE"
         args=(--label "$LABEL")
         if [[ "$LABELLED" == true ]]; then
           args+=(--labelled)

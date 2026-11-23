@@ -521,18 +521,30 @@ jobs:
     pull_request: { types: [opened, synchronize, reopened, labeled, unlabeled] }
     merge_group:
   permissions: { contents: read }
+  concurrency: { group: terraform-pr-${{ github.ref }}, cancel-in-progress: true }
   jobs:
     deletes:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@<commit> # vX
-          with: { persist-credentials: false }
         - uses: Sustenaut/pubhost/actions/terraform-deletes@<commit> # vX.Y.Z
   ```
 
-  Adding or removing the label runs it again. In the merge queue the
-  pull request's label is not in the event, so the job passes there: the
-  pull request's own run decided.
+  The job needs `contents: read` and nothing else, and it never runs the
+  pull request's code, only reads its files, so the checkout keeps its token
+  (a private repository's base commit is fetched with it). The action
+  fetches the base commit only if the checkout lacks it; `fetch-depth: 0`
+  on the checkout is the alternative. Adding or removing the label runs it
+  again. In the merge queue the pull request's label is not in the event,
+  so the job passes there: the pull request's own run decided.
+
+  What it reads is the code: comments (`/* */`, `#`, `//`) and heredoc
+  bodies are left out, so a resource kept inside one still counts as
+  deleted, and one that was only ever in one is not. A limit: a pull request
+  can edit the workflow that runs the check, so it is a guard against
+  mistakes, not against a pull request meant to get round it. Closing that
+  takes a ruleset's required workflow from another repository, a decision
+  for the organization's rulesets (release-state), not for this action.
 - Every run starts with a fresh `terraform init` against the backend the
   stack names. A provider download can fail (GitHub's release downloads,
   releases.hashicorp.com's SHA256SUMS), so init is tried three times, 15 s
