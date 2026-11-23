@@ -1,0 +1,59 @@
+# Fails a pull request that deletes a Terraform resource or module block
+# unless it has the label terraform-destroy, so that terraform.yml, which
+# refuses to apply a plan that deletes anything without that label, never
+# finds out after the merge. It reads the pull request's files (`pubhost
+# terraform deletes`, README, "Terraform from CI"), so it needs no
+# credentials and no state, and runs on a pull request's code safely.
+#
+# A workflow of the stack's repository, run for pull requests and the merge
+# queue and made a required check:
+#
+#   name: terraform-pr
+#   on:
+#     pull_request: { types: [opened, synchronize, reopened, labeled, unlabeled] }
+#     merge_group:
+#   permissions: { contents: read }
+#   jobs:
+#     deletes:
+#       runs-on: ubuntu-latest
+#       steps:
+#         - uses: actions/checkout@<commit> # vX
+#           with: { persist-credentials: false }
+#         - uses: Sustenaut/pubhost/actions/terraform-deletes@<commit> # vX.Y.Z
+#
+# Adding or removing the label runs it again. In the merge queue the pull
+# request's label is not in the event, so the check passes there: the pull
+# request's own run decided. A delete this cannot see (a changed for_each or
+# count, a changed name, a replacement) is still stopped by terraform.yml's
+# check of the real plan.
+name: terraform-deletes
+description: Fail a pull request that deletes a Terraform resource or module block and lacks the label that allows it.
+
+inputs:
+  label:
+    description: The label that allows deletes; the one terraform.yml reads.
+    default: terraform-destroy
+
+runs:
+  using: composite
+  steps:
+    - name: Does the change delete a resource?
+      shell: bash
+      env:
+        EVENT: ${{ github.event_name }}
+        BASE: ${{ github.event.pull_request.base.sha }}
+        LABELLED: ${{ contains(github.event.pull_request.labels.*.name, inputs.label) }}
+        LABEL: ${{ inputs.label }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        if [[ "$EVENT" != pull_request ]]; then
+          echo "::notice::$EVENT: the pull request's own run decided"
+          exit 0
+        fi
+        # The base commit, which a shallow checkout lacks.
+        git fetch --no-tags --depth=1 origin "$BASE"
+        args=(--label "$LABEL")
+        if [[ "$LABELLED" == true ]]; then
+          args+=(--labelled)
+        fi
+        python3 "$ACTION_PATH/../../src/pubhost/terraform_deletes.py" "${args[@]}" "$BASE" HEAD

@@ -2,6 +2,7 @@
 
     pubhost dns check ZONE [--record NAME/TYPE...]
     pubhost site check DIR [--url URL]
+    pubhost terraform deletes BASE HEAD [--labelled]
 
 Each runs in the repository's root, where pubrules.json is. The Terraform
 modules, terraform.yml and the deploy-static and docker-build actions are
@@ -30,6 +31,14 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("zone", help="a zone in pubrules.json's hosting block, such as example.eu")
     p.add_argument("--record", action="append", default=[], metavar="NAME/TYPE",
                    help="another rrset to compare, such as www/A; repeat it")
+    p = commands.add_parser("terraform", help="read a change to Terraform files")
+    terraform = p.add_subparsers(dest="terraform_command", required=True)
+    p = terraform.add_parser("deletes", help="fail if a change deletes a resource or module block "
+                                             "and the pull request has no label allowing it")
+    p.add_argument("base", help="the revision the change starts from")
+    p.add_argument("head", help="the revision with the change")
+    p.add_argument("--labelled", action="store_true", help="the pull request has the label")
+    p.add_argument("--label", default="terraform-destroy", help="its name, for the messages")
     p = commands.add_parser("site", help="check a public site's built pages")
     site = p.add_subparsers(dest="site_command", required=True)
     p = site.add_parser("check", help="every page names itself, has an Open Graph card with a "
@@ -57,6 +66,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "dns":
         from .dns import check  # noqa: PLC0415
         return check(root, args.zone, args.record)
+    if args.command == "terraform":
+        from .terraform_deletes import run as deletes  # noqa: PLC0415
+        return deletes(args.base, args.head, args.labelled, args.label)
     from .site import run as site  # noqa: PLC0415
     return site(root, confined(args.dir, "the site directory"), args.url)
 
