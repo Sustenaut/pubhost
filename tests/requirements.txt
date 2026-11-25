@@ -3,6 +3,8 @@
 # requirements-pubrules.txt pins pubrules, which pubhost imports at run time
 # (pubrules.hosting) as well as the suite's plugin: the lock's pubrules is the one
 # pubhost is tested with.
+# The steps and plugin the suite runs with; the nightly moves the pin.
+pubtestrules==0.4.0
 -r requirements-pubrules.txt
 # `make functional` measures the suite, the `pubhost` processes it starts included.
 coverage==7.16.2

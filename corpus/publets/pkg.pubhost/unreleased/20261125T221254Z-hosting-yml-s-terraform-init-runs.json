@@ -1,0 +1,4 @@
+{
+  "category": "internal",
+  "change": "hosting.yml's terraform init runs through pubactions' actions/terraform-init (Sustenaut/pubactions v0.1.0), which pubrules 0.50.0 no longer ships, with pubrules.json's mirror.terraform read in a step before it and given as its mirror input; pubhost moves to pubrules 0.50.0"
+}
