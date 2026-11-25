@@ -561,6 +561,13 @@ jobs:
   secret `BWS_ACCESS_TOKEN`, so the stack gets what `./with-secrets` gives it
   on a laptop. bws is the release's binary, checked against its sha256. With
   `secrets: false` terraform runs plainly and no token is read.
+- `tf_vars` (optional) names the calling repository's variables Terraform gets,
+  separated by spaces or commas: each becomes `TF_VAR_` and its name in lower case
+  (`tf_vars: SLA` is `var.sla`), its value whole however many lines it has. A value
+  another workflow keeps in a repository variable so reaches the stack without being in
+  its files; shared-infra takes `pubfleet sla --derive`'s JSON this way. A name the
+  repository has no variable of is left out, and Terraform takes its default; one that
+  isn't a variable's name fails the run.
 
 ## Checking a public site
 
