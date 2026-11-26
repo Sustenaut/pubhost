@@ -39,11 +39,17 @@ jobs:
         with:
           path: ~/.terraform.d/plugin-cache
           key: terraform-providers-${{ matrix.module }}-${{ hashFiles(format('terraform/{0}/**/*.tf', matrix.module)) }}
-      - uses: Sustenaut/pubrules/actions/terraform-init@36b8b556ff838eb1e24c4e995350f10fdbdf26f3 # v0.45.0
+      # The provider mirror pubrules.json names (mirror.terraform), if any:
+      # none, or no pubrules.json, gives no mirror try.
+      - name: The provider mirror pubrules.json names
+        id: mirror
+        run: echo "terraform=$(jq -r '.mirror.terraform // empty' pubrules.json 2>/dev/null || true)" >> "$GITHUB_OUTPUT"
+      - uses: Sustenaut/pubactions/actions/terraform-init@b7e6571d667eaf4a2750e97691d55429d768ac9c # v0.1.0
         with:
           dir: terraform/${{ matrix.module }}
           args: -backend=false -input=false
           pause: '10'
+          mirror: ${{ steps.mirror.outputs.terraform }}
       - run: terraform -chdir="terraform/$MODULE" validate
         env: { MODULE: '${{ matrix.module }}' }
       - run: terraform -chdir="terraform/$MODULE" test
