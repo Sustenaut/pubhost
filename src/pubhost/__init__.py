@@ -6,7 +6,7 @@ terraform.yml applies a stack from CI; the actions build an image
 (docker-build) and deploy a static site (deploy-static), which first runs
 `pubhost site check`.
 
-It uses pubrules as a library, for the hosting block's shape (pubrules.hosting),
+It uses pubrules as a library, for the hosting block's shape (pubrules.api.hosting_settings),
 which `pubrules sync` checks; pubrules never imports it.
 """
 

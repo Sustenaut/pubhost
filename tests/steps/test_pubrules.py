@@ -1,5 +1,5 @@
-"""Steps for pubhost's use of pubrules: the names it imports, which its README
-lists and the installed pubrules must have."""
+"""Steps for pubhost's use of pubrules: the names it imports from pubrules.api,
+which its README lists and the installed pubrules.api must export."""
 
 from __future__ import annotations
 
@@ -49,11 +49,17 @@ def none_extra(imported):
     assert not extra, f"listed but not imported: {sorted(extra)}"
 
 
-@then("the installed pubrules has each of them")
+@then("each is from pubrules.api")
+def from_api(imported):
+    elsewhere = sorted(name for name in imported if name.rpartition(".")[0] != "pubrules.api")
+    assert not elsewhere, f"imported from pubrules but not from pubrules.api: {elsewhere}"
+
+
+@then("the installed pubrules.api exports each of them")
 def installed(imported):
-    for name in sorted(imported):
-        module, _, attr = name.rpartition(".")
-        assert hasattr(importlib.import_module(module), attr), f"pubrules has no {name}"
+    exported = set(importlib.import_module("pubrules.api").__all__)
+    missing = sorted(name for name in imported if name.rpartition(".")[2] not in exported)
+    assert not missing, f"pubrules.api does not export {missing}"
 
 
 # The hosting block's maps, whose keys are names the repository chooses
@@ -82,8 +88,8 @@ def settings_named(value, path=()):
 def hosting_check():
     import json  # noqa: PLC0415
 
-    from pubrules.hosting import settings  # noqa: PLC0415
-    return settings(json.loads(TESTDATA.read_text(encoding="utf-8")))
+    from pubrules.api import hosting_settings  # noqa: PLC0415
+    return hosting_settings(json.loads(TESTDATA.read_text(encoding="utf-8")))
 
 
 @then("it accepts it")
@@ -97,4 +103,4 @@ def declared(checked):
     block = text.split('variable "config"', 1)[1].split('\nvariable "', 1)[0]
     attributes = set(re.findall(r"^\s*([a-z_]+)\s*=", block, re.MULTILINE))
     missing = settings_named(checked) - attributes
-    assert not missing, f"pubrules.hosting accepts settings the hosting module drops: {sorted(missing)}"
+    assert not missing, f"pubrules.api.hosting_settings accepts settings the hosting module drops: {sorted(missing)}"
