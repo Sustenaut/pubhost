@@ -1,4 +1,0 @@
-{
-  "category": "added",
-  "change": "terraform.yml's tf_vars names the calling repository's variables Terraform gets, each as TF_VAR_ and its lower-case name, whole however many lines it has; a name the repository has no variable of is left out"
-}
