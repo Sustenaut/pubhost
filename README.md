@@ -50,11 +50,13 @@ which `pubrules sync` checks and `pubhost dns check` reads. pubrules never
 imports pubhost and names nothing of it; pubhost offers no `sustenaut.sync`
 or `sustenaut.bump` hook, so pubrules never loads it into its own process.
 
+It imports only from pubrules.api, the surface pubrules holds steady (pubrules'
+own suite fails when that surface changes), never from pubrules' internal modules.
 These are all the names it takes, which `tests/features/pubrules.feature`
-holds it to, and which the installed pubrules must have:
+holds it to, and which the installed pubrules.api must export:
 
-- `pubrules.hosting.settings`: the hosting block, checked.
-- `pubrules.hosting.SEP` and `pubrules.hosting.dnskey`: a DNSKEY's key-signing
+- `pubrules.api.hosting_settings`: the hosting block, checked.
+- `pubrules.api.HOSTING_SEP` and `pubrules.api.dnskey`: a DNSKEY's key-signing
   flag and its parsing, for the pinned keys.
 
 The modules' variable types are pubhost's, and the block's shape is pubrules'.

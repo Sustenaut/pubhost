@@ -20,7 +20,7 @@ that changed its keys, fails here before any DS record is at the registrar.
 dig and delv are BIND 9's (Debian's bind9-dnsutils). Nothing is changed
 anywhere: every query is a read.
 
-The hosting block's shape is pubrules' (`pubrules.hosting`, which `pubrules sync`
+The hosting block's shape is pubrules' (`pubrules.api.hosting_settings`, which `pubrules sync`
 checks); this reads the block through it.
 """
 
@@ -37,7 +37,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from pubrules.hosting import SEP, dnskey, settings
+from pubrules.api import HOSTING_SEP, dnskey, hosting_settings
 
 TIMEOUT = 30
 RDATA = 4  # the fields of a record dig prints before its value: owner, TTL, class, type
@@ -220,7 +220,7 @@ def anchors(zone: str, pinned: set[str]) -> str:
     lines = []
     for key in sorted(pinned):
         flags, protocol, algorithm, _ = dnskey(key)
-        if flags == SEP and KEY.fullmatch(key):
+        if flags == HOSTING_SEP and KEY.fullmatch(key):
             lines.append(f'  "{checked(f"{zone}.")}" static-key {flags} {protocol} {algorithm} '
                          f'"{key.split(" ")[3]}";')
     return "trust-anchors {\n" + "\n".join(lines) + "\n};\n"
@@ -276,7 +276,7 @@ def lagging(zone: str, servers: list[str]) -> list[str]:
 
 
 def read_config(root: Path) -> dict[str, Any]:
-    """pubrules.json, as JSON; its hosting block is checked by pubrules.hosting."""
+    """pubrules.json, as JSON; its hosting block is checked by pubrules.api.hosting_settings."""
     path = root / "pubrules.json"
     if not path.is_file():
         sys.exit(f"pubhost: no pubrules.json in {root}; dns check reads its hosting block")
@@ -290,7 +290,7 @@ def read_config(root: Path) -> dict[str, Any]:
 
 
 def check(root: Path, zone: str, extra: list[str]) -> int:
-    hosting = settings(read_config(root))
+    hosting = hosting_settings(read_config(root))
     zones = hosting.get("zones", {})
     if zone not in zones:
         sys.exit(f"pubhost: pubrules.json's hosting block has no zone {zone}; it has "

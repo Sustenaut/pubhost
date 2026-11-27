@@ -1,8 +1,13 @@
-Feature: pubhost uses pubrules as a library, through the names its README lists
+Feature: pubhost uses pubrules as a library, through pubrules.api only
   pubhost reads pubrules.json's hosting block through pubrules' own check of it,
   so it imports pubrules rather than copying it. pubrules never imports pubhost,
-  and names nothing of it. The names pubhost takes are listed here, and in
-  the README, so a pubrules change that drops one fails this suite first.
+  and names nothing of it. pubhost imports only from pubrules.api, the surface
+  pubrules holds steady, and its README lists the names it takes, so a pubrules
+  change that drops one fails this suite first.
+
+  Scenario: pubhost imports from pubrules only pubrules.api
+    When I read every import of pubrules in src/pubhost
+    Then each is from pubrules.api
 
   Scenario: pubhost imports from pubrules only the names its README lists
     When I read every import of pubrules in src/pubhost
@@ -11,7 +16,7 @@ Feature: pubhost uses pubrules as a library, through the names its README lists
 
   Scenario: Every name pubhost takes from pubrules is in the pubrules installed
     When I read every import of pubrules in src/pubhost
-    Then the installed pubrules has each of them
+    Then the installed pubrules.api exports each of them
 
   Scenario: pubhost says its version
     Given a scratch directory

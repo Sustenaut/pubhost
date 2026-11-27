@@ -15,7 +15,7 @@ authors = [{ name = "David Schryer", email = "schryer@gmail.com" }]
 # and `pubhost dns check` reads (README, "What pubhost takes from pubrules").
 # The floor is the oldest pubrules pubhost works with; tests/requirements.lock
 # pins the one it is tested with.
-dependencies = ["pubrules>=0.43.0"]
+dependencies = ["pubrules>=0.50.1"]
 
 [project.urls]
 Repository = "https://github.com/Sustenaut/pubhost"
