@@ -2,7 +2,7 @@
   "claims": {
     "identity": {
       "class": "archival",
-      "content": "pubhost 0.2.0 is released as v0.2.0 from commit efc664ceb41f344f910c94258eec1adfe2d23c25.",
+      "content": "pubhost 0.3.0 is released as v0.3.0 from commit 88d718e3b18e980faeae566cfbfc5cf74cf65931.",
       "data": {
         "columns": [
           {
@@ -27,25 +27,25 @@
         "rows": [
           [
             "pubhost",
-            "0.2.0",
+            "0.3.0",
             "pubhost --version",
-            "pubhost 0.2.0",
-            "v0.2.0",
-            "efc664ceb41f344f910c94258eec1adfe2d23c25"
+            "pubhost 0.3.0",
+            "v0.3.0",
+            "88d718e3b18e980faeae566cfbfc5cf74cf65931"
           ]
         ]
       },
-      "scope": "the published release v0.2.0 of pubhost",
+      "scope": "the published release v0.3.0 of pubhost",
       "sources": [
         {
           "ref": "pubhost",
-          "revision": "efc664ceb41f344f910c94258eec1adfe2d23c25"
+          "revision": "88d718e3b18e980faeae566cfbfc5cf74cf65931"
         }
       ]
     },
     "release": {
       "class": "archival",
-      "content": "pubhost 0.2.0 was released on 2026-11-20 from commit efc664ceb41f344f910c94258eec1adfe2d23c25 with these changes.",
+      "content": "pubhost 0.3.0 was released on 2026-11-27 from commit 88d718e3b18e980faeae566cfbfc5cf74cf65931 with these changes.",
       "data": {
         "columns": [
           {
@@ -57,28 +57,36 @@
         ],
         "rows": [
           [
-            "changed",
-            "pubkit is now pubrules: pubhost depends on pubrules 0.43.0 or later instead of pubkit and reads the hosting block from the repository's pubrules.json"
+            "added",
+            "pubhost terraform deletes and actions/terraform-deletes: fail a pull request that deletes Terraform resources without the terraform-destroy label"
+          ],
+          [
+            "added",
+            "terraform.yml's tf_vars names the calling repository's variables Terraform gets, each as TF_VAR_ and its lower-case name, whole however many lines it has; a name the repository has no variable of is left out"
           ],
           [
             "internal",
-            "The suite's scenarios are Given/When/Then on pubtest's steps"
+            "hosting.yml's terraform init runs through pubactions' actions/terraform-init (Sustenaut/pubactions v0.1.0), which pubrules 0.50.0 no longer ships, with pubrules.json's mirror.terraform read in a step before it and given as its mirror input; pubhost moves to pubrules 0.50.0"
+          ],
+          [
+            "changed",
+            "pubhost takes the hosting block's check, HOSTING_SEP and dnskey from pubrules.api, the surface pubrules holds steady, and needs pubrules 0.50.1 or later; tests/features/pubrules.feature fails on any import of pubrules from elsewhere"
           ]
         ]
       },
       "depends": [
         "#identity"
       ],
-      "scope": "the published release v0.2.0 of pubhost",
+      "scope": "the published release v0.3.0 of pubhost",
       "sources": [
         {
           "ref": "pubhost",
-          "revision": "efc664ceb41f344f910c94258eec1adfe2d23c25"
+          "revision": "88d718e3b18e980faeae566cfbfc5cf74cf65931"
         }
       ]
     }
   },
-  "created": "2026-11-20T00:00:00Z",
+  "created": "2026-11-27T00:00:00Z",
   "sections": [
     {
       "heading": "Identity",

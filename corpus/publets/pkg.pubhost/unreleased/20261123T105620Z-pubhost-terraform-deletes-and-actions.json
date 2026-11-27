@@ -1,4 +1,0 @@
-{
-  "category": "added",
-  "change": "pubhost terraform deletes and actions/terraform-deletes: fail a pull request that deletes Terraform resources without the terraform-destroy label"
-}

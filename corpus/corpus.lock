@@ -3,8 +3,8 @@
   "corpus": {
     "domain": "pub:sha2-256:bi2fqqt2yqx3sdy6qpzh4vkrocjgcoxsippo5hcj2vsfpwhfno2a",
     "generation": {
-      "cid": "pub:sha2-256:o3r77vzkaoja32lcu7bhsz4kosbmgocf2kzndyki4j2fy3wksr3q",
-      "index": 2
+      "cid": "pub:sha2-256:53lnremjd2j4iql5jdx6wysq3sjbdozwo7f5lkpq7cb73uq5uwfq",
+      "index": 3
     },
     "imports": {},
     "key": "pub:sha2-256:c6kujsxhzx4pg7qklemhmfozkcfehbb5jo7mwewks3hh2dldvyyq",
@@ -18,9 +18,9 @@
     ]
   },
   "publets": [
-    {"slug": "pkg.pubhost", "kind": "doc", "tag": "PKG-PUBHST-11-2026", "source": "publets/pkg.pubhost", "cid": "pub:sha2-256:d57hkcgc5qxmhpvktbxgiv7duhas4jodbvobuh4thw7g6udgumhq", "genesis": "pub:sha2-256:jcudpdmbw67w5gxyh7evlpxtrdvnoiysrn3sosno64hjnm64ntdq", "deps": ["pkg.pubhost#identity", "pkg.pubhost#release"]},
-    {"slug": "pkg.pubhost#identity", "kind": "claim", "source": "publets/pkg.pubhost", "cid": "pub:sha2-256:x3qjohauhd4bqnxifbsqw5qno3cmxawel7ovlpyer2pw5qb4c5lq", "genesis": "pub:sha2-256:j75h6qcioynfqy64ikvmvvbcvcw5ahtvtkbkr3hdou3winqk4xua", "deps": []},
-    {"slug": "pkg.pubhost#release", "kind": "claim", "source": "publets/pkg.pubhost", "cid": "pub:sha2-256:zvqtvczfctnlv6ut7exveh6hz3bff267dhegwdhk77ft4wm5h7hq", "genesis": "pub:sha2-256:tdtplv3vaj6ihm66rrxmjkofzsq6hy5u6yth3gd6h7jdj6wv7qsq", "deps": ["pkg.pubhost#identity"]},
+    {"slug": "pkg.pubhost", "kind": "doc", "tag": "PKG-PUBHST-11-2026", "source": "publets/pkg.pubhost", "cid": "pub:sha2-256:5i4u5ydbegmlrbcl32itwtbnehzjjbdhxxsi4ejcwl56kfhb6neq", "genesis": "pub:sha2-256:jcudpdmbw67w5gxyh7evlpxtrdvnoiysrn3sosno64hjnm64ntdq", "deps": ["pkg.pubhost#identity", "pkg.pubhost#release"]},
+    {"slug": "pkg.pubhost#identity", "kind": "claim", "source": "publets/pkg.pubhost", "cid": "pub:sha2-256:66hgnshp3if4qugwiugzskq7n6uvgwl2z47xs7uoj47vsypgz62q", "genesis": "pub:sha2-256:j75h6qcioynfqy64ikvmvvbcvcw5ahtvtkbkr3hdou3winqk4xua", "deps": []},
+    {"slug": "pkg.pubhost#release", "kind": "claim", "source": "publets/pkg.pubhost", "cid": "pub:sha2-256:s5ux3moknzr47jyz2ed7ug7tdp47txz6kgbymkw4aezhkz4xvuca", "genesis": "pub:sha2-256:tdtplv3vaj6ihm66rrxmjkofzsq6hy5u6yth3gd6h7jdj6wv7qsq", "deps": ["pkg.pubhost#identity"]},
     {"slug": "pkg.pubhost#summary", "kind": "claim", "source": "publets/pkg.pubhost", "cid": "pub:sha2-256:ruytrc3zbp3gvohrx2kvhxnyu7zcqmp7yqrc7n4jgrb2ubz2z3ga", "genesis": "pub:sha2-256:ruytrc3zbp3gvohrx2kvhxnyu7zcqmp7yqrc7n4jgrb2ubz2z3ga", "deps": ["pkg.pubhost#release"]}
   ]
 }

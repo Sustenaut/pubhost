@@ -1,4 +1,0 @@
-{
-  "category": "changed",
-  "change": "pubhost takes the hosting block's check, HOSTING_SEP and dnskey from pubrules.api, the surface pubrules holds steady, and needs pubrules 0.50.1 or later; tests/features/pubrules.feature fails on any import of pubrules from elsewhere"
-}
